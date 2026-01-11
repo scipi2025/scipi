@@ -1,7 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+// Support both local (.env) and Vercel Supabase integration variable names
+const supabaseUrl = process.env.SUPABASE_URL || process.env.DATABASE_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.DATABASE_SUPABASE_SERVICE_ROLE_KEY || '';
 
 // Create Supabase client with service role key for server-side operations
 export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
