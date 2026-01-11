@@ -5,6 +5,9 @@ import { ArrowRight, Beaker } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
+// Force dynamic rendering to avoid database calls during build
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: "Proiecte",
   description:

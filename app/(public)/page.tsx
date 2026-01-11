@@ -15,6 +15,9 @@ import { prisma } from "@/lib/db";
 import { format } from "date-fns";
 import type { Metadata } from "next";
 
+// Force dynamic rendering to avoid database calls during build
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: "Acasă",
   description:

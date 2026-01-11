@@ -6,6 +6,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BookOpen, FileText, File, ExternalLink, Download } from "lucide-react";
 import type { Metadata } from "next";
 
+// Force dynamic rendering to avoid database calls during build
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: "Resurse",
   description:

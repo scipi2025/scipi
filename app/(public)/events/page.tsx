@@ -7,6 +7,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 
+// Force dynamic rendering to avoid database calls during build
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: "Evenimente",
   description:

@@ -6,6 +6,9 @@ import { ExternalLink, Building2, Globe, HandshakeIcon, LucideIcon } from "lucid
 import type { Metadata } from "next";
 import { Partner } from "@prisma/client";
 
+// Force dynamic rendering to avoid database calls during build
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: "Parteneri",
   description:

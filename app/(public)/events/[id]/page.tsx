@@ -7,6 +7,9 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 
+// Force dynamic rendering to avoid database calls during build
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const event = await prisma.event.findUnique({
