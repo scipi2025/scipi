@@ -14,8 +14,12 @@ if (!connectionString) {
   throw new Error('DATABASE_URL environment variable is not set');
 }
 
+// Configure SSL for production (Supabase requires SSL)
+const isProduction = process.env.NODE_ENV === 'production';
+
 const pool = globalForPrisma.pool ?? new pg.Pool({
   connectionString,
+  ssl: isProduction ? { rejectUnauthorized: false } : false,
 });
 
 const adapter = new PrismaPg(pool);
