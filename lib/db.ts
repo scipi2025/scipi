@@ -7,11 +7,15 @@ const globalForPrisma = globalThis as unknown as {
   pool: pg.Pool | undefined;
 };
 
+// Use DATABASE_URL from environment variable (required for Vercel/production)
+const connectionString = process.env.DATABASE_URL;
+
+if (!connectionString) {
+  throw new Error('DATABASE_URL environment variable is not set');
+}
+
 const pool = globalForPrisma.pool ?? new pg.Pool({
-  host: 'localhost',
-  port: 5432,
-  database: 'scipi',
-  user: 'ripanionut',
+  connectionString,
 });
 
 const adapter = new PrismaPg(pool);
@@ -27,4 +31,3 @@ if (process.env.NODE_ENV !== 'production') {
   globalForPrisma.prisma = prisma;
   globalForPrisma.pool = pool;
 }
-
