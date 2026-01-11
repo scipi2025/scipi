@@ -8,27 +8,18 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 // Use DATABASE_URL from environment variable (required for Vercel/production)
-let connectionString = process.env.DATABASE_URL;
+const connectionString = process.env.DATABASE_URL;
 
 if (!connectionString) {
   throw new Error('DATABASE_URL environment variable is not set');
 }
 
-// Determine if we're in production (Vercel sets this)
-const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
-
-// For Supabase in production, ensure sslmode is set in the connection string
-if (isProduction && !connectionString.includes('sslmode=')) {
-  const separator = connectionString.includes('?') ? '&' : '?';
-  connectionString = `${connectionString}${separator}sslmode=require`;
-}
+// Configure SSL for production (Supabase requires SSL)
+const isProduction = process.env.NODE_ENV === 'production';
 
 const pool = globalForPrisma.pool ?? new pg.Pool({
   connectionString,
-  // SSL configuration for production
-  ssl: isProduction ? {
-    rejectUnauthorized: false,
-  } : undefined,
+  ssl: isProduction ? { rejectUnauthorized: false } : false,
 });
 
 const adapter = new PrismaPg(pool);
