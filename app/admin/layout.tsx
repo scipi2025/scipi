@@ -21,8 +21,8 @@ export default async function AdminLayout({
   return (
     <SidebarProvider defaultOpen={true}>
       <AdminSidebar admin={session.admin} />
-      <SidebarInset>
-        <div className="flex flex-1 flex-col">
+      <SidebarInset className="flex flex-col h-screen overflow-hidden">
+        <div className="flex flex-1 flex-col overflow-hidden">
           {children}
         </div>
       </SidebarInset>

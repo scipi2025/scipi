@@ -164,7 +164,7 @@ export default function ProjectsPage() {
   };
 
   return (
-    <div className="">
+    <div className="flex flex-col h-full overflow-hidden">
       <AdminHeader title="Proiecte" />
 
       <div className="flex-1 overflow-auto p-6">

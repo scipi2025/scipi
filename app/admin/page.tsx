@@ -93,7 +93,7 @@ export default async function AdminDashboardPage() {
   ];
 
   return (
-    <>
+    <div className="flex flex-col h-full overflow-hidden">
       <AdminHeader title="Dashboard" />
 
       <div className="flex-1 overflow-auto p-6">
@@ -203,7 +203,7 @@ export default async function AdminDashboardPage() {
           </Card>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 

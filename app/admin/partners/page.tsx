@@ -187,7 +187,7 @@ export default function PartnersPage() {
   };
 
   return (
-    <>
+    <div className="flex flex-col h-full overflow-hidden">
       <AdminHeader 
         title="Gestionare Parteneri" 
         breadcrumbs={[{ label: "Parteneri" }]} 
@@ -454,6 +454,6 @@ export default function PartnersPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 }

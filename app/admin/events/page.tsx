@@ -154,7 +154,7 @@ export default function AdminEventsPage() {
   };
 
   return (
-    <>
+    <div className="flex flex-col h-full overflow-hidden">
       <div className="flex-1 overflow-auto p-6">
         <div className="space-y-6">
           <div className="flex items-center justify-between">
@@ -389,6 +389,6 @@ export default function AdminEventsPage() {
           </div>
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 }

@@ -131,7 +131,7 @@ export default function MembershipApplicationsPage() {
   };
 
   return (
-    <>
+    <div className="flex flex-col h-full overflow-hidden">
       <AdminHeader title="Cereri de Membru" />
 
       <div className="flex-1 overflow-auto p-6">
@@ -309,6 +309,6 @@ export default function MembershipApplicationsPage() {
           )}
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 }
