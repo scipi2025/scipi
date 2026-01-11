@@ -14,12 +14,14 @@ if (!connectionString) {
   throw new Error('DATABASE_URL environment variable is not set');
 }
 
-// Configure SSL for production (Supabase requires SSL)
-const isProduction = process.env.NODE_ENV === 'production';
+// Enable SSL if running on Vercel or in production, or if connection string contains pooler.supabase.com
+const useSSL = process.env.VERCEL === '1' || 
+               process.env.NODE_ENV === 'production' || 
+               connectionString.includes('supabase.com');
 
 const pool = globalForPrisma.pool ?? new pg.Pool({
   connectionString,
-  ssl: isProduction ? { rejectUnauthorized: false } : false,
+  ssl: useSSL ? { rejectUnauthorized: false } : false,
 });
 
 const adapter = new PrismaPg(pool);
