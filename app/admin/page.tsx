@@ -4,6 +4,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Users, FolderKanban, Calendar, BookOpen, Mail, UserPlus } from "lucide-react";
 import { AdminHeader } from "@/components/admin/admin-header";
 
+// Force dynamic rendering (uses cookies for auth)
+export const dynamic = 'force-dynamic';
+
 async function getDashboardStats() {
   const [
     partnersCount,
@@ -32,7 +35,15 @@ async function getDashboardStats() {
 }
 
 export default async function AdminDashboardPage() {
-  const admin = await getCurrentAdmin();
+  const admin = await getCurrentAdmin().catch(() => null);
+  
+  // If not authenticated, redirect to login
+  if (!admin) {
+    const { redirect } = await import('next/navigation');
+    redirect('/admin/login');
+    return null; // TypeScript needs this
+  }
+  
   const stats = await getDashboardStats();
 
   const statsCards = [

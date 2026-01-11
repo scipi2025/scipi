@@ -2,6 +2,9 @@ import { getServerSession } from "@/lib/auth-server";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 
+// Force dynamic rendering for admin routes (uses cookies)
+export const dynamic = 'force-dynamic';
+
 export default async function AdminLayout({
   children,
 }: {

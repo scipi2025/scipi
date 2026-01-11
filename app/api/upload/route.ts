@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { validateSession } from '@/lib/auth';
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
-import { existsSync } from 'fs';
+import { uploadToStorage } from '@/lib/supabase';
 
 export const runtime = 'nodejs';
 
-// POST /api/upload - Upload an image to local storage
+// POST /api/upload - Upload a file to Supabase Storage
 export async function POST(request: NextRequest) {
   try {
     // Verify authentication
@@ -23,7 +21,7 @@ export async function POST(request: NextRequest) {
     // Get form data
     const formData = await request.formData();
     const file = formData.get('file') as File;
-    const type = formData.get('type') as string; // 'partner' | 'event' | 'resource'
+    const type = formData.get('type') as string; // 'partner' | 'event' | 'resource' | 'project'
 
     if (!file) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
@@ -70,52 +68,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate unique filename
-    const timestamp = Date.now();
-    const randomString = Math.random().toString(36).substring(2, 15);
-    const extension = file.name.split('.').pop();
-    const filename = `${timestamp}-${randomString}.${extension}`;
-
-    // Determine upload directory based on type
-    let uploadDir: string;
-    let publicUrl: string;
-
-    switch (type) {
-      case 'partner':
-        uploadDir = join(process.cwd(), 'public', 'uploads', 'partners');
-        publicUrl = `/uploads/partners/${filename}`;
-        break;
-      case 'project':
-        uploadDir = join(process.cwd(), 'public', 'uploads', 'projects');
-        publicUrl = `/uploads/projects/${filename}`;
-        break;
-      case 'event':
-        uploadDir = join(process.cwd(), 'public', 'uploads', 'events');
-        publicUrl = `/uploads/events/${filename}`;
-        break;
-      case 'resource':
-        uploadDir = join(process.cwd(), 'public', 'uploads', 'resources');
-        publicUrl = `/uploads/resources/${filename}`;
-        break;
-      default:
-        uploadDir = join(process.cwd(), 'public', 'uploads', 'general');
-        publicUrl = `/uploads/general/${filename}`;
-    }
-
-    // Create directory if it doesn't exist
-    if (!existsSync(uploadDir)) {
-      await mkdir(uploadDir, { recursive: true });
-    }
-
-    // Convert file to buffer and save
+    // Convert file to buffer
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    const filepath = join(uploadDir, filename);
-    await writeFile(filepath, buffer);
+
+    // Generate safe filename
+    const timestamp = Date.now();
+    const randomString = Math.random().toString(36).substring(2, 15);
+    const extension = file.name.split('.').pop() || 'jpg';
+    const safeFilename = `${timestamp}-${randomString}.${extension}`;
+
+    // Determine folder based on type
+    const folder = type || 'general';
+
+    // Upload to Supabase Storage
+    const { url, error } = await uploadToStorage(buffer, safeFilename, file.type, folder);
+
+    if (error) {
+      return NextResponse.json({ error }, { status: 500 });
+    }
 
     return NextResponse.json({
-      url: publicUrl,
-      filename: filename,
+      url,
+      filename: safeFilename,
       originalName: file.name,
       size: file.size,
       mimeType: file.type,
@@ -128,4 +103,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-
