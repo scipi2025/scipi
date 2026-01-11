@@ -14,9 +14,20 @@ if (!connectionString) {
   throw new Error('DATABASE_URL or DATABASE_POSTGRES_PRISMA_URL environment variable is not set');
 }
 
-const pool = globalForPrisma.pool ?? new pg.Pool({
-  connectionString,
-});
+// Supabase (and many hosted Postgres providers) require SSL in production.
+// Node-postgres will otherwise try to validate the full certificate chain and can fail
+// with: "self-signed certificate in certificate chain".
+const shouldUseSsl =
+  process.env.VERCEL === '1' ||
+  process.env.NODE_ENV === 'production' ||
+  connectionString.includes('supabase.com');
+
+const pool =
+  globalForPrisma.pool ??
+  new pg.Pool({
+    connectionString,
+    ssl: shouldUseSsl ? { rejectUnauthorized: false } : false,
+  });
 
 const adapter = new PrismaPg(pool);
 
