@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
     const { name, description, logoUrl, type, websiteUrl, displayOrder, isActive } = body;
 
     // Validation
-    if (!name || !logoUrl || !type) {
+    if (!name || !type) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -103,7 +103,7 @@ export async function PUT(request: NextRequest) {
       data: {
         ...(name && { name }),
         ...(description !== undefined && { description }),
-        ...(logoUrl && { logoUrl }),
+        ...(logoUrl !== undefined && { logoUrl }), // Allow empty string to clear logo
         ...(type && { type }),
         ...(websiteUrl !== undefined && { websiteUrl }),
         ...(displayOrder !== undefined && { displayOrder }),

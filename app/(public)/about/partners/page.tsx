@@ -65,13 +65,15 @@ export default async function PartnersPage() {
               <CardContent className="pt-6">
                 <div className="flex flex-col items-center text-center space-y-4">
                   {/* Logo - smaller and centered */}
-                  <div className="h-16 w-full flex items-center justify-center">
-                    <img
-                      src={partner.logoUrl}
-                      alt={partner.name}
-                      className="max-h-full max-w-[70%] object-contain group-hover:scale-105 transition-transform"
-                    />
-                  </div>
+                  {partner.logoUrl && (
+                    <div className="h-16 w-full flex items-center justify-center">
+                      <img
+                        src={partner.logoUrl}
+                        alt={partner.name}
+                        className="max-h-full max-w-[70%] object-contain group-hover:scale-105 transition-transform"
+                      />
+                    </div>
+                  )}
                   
                   {/* Name */}
                   <h3 className="font-bold text-lg">{partner.name}</h3>

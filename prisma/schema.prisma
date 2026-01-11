@@ -40,7 +40,7 @@ model Partner {
   id           String   @id @default(cuid())
   name         String
   description  String?  @db.Text // Scurtă descriere a partenerului
-  logoUrl      String
+  logoUrl      String?  // Logo opțional
   type         String   // "institutional" | "international" | "sponsor"
   websiteUrl   String?
   displayOrder Int      @default(0)

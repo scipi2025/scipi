@@ -65,6 +65,8 @@ export default function PartnersPage() {
     displayOrder: 0,
     isActive: true,
   });
+  const [saving, setSaving] = useState(false);
+  const [formError, setFormError] = useState("");
 
   useEffect(() => {
     fetchPartners();
@@ -86,6 +88,8 @@ export default function PartnersPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError("");
+    setSaving(true);
     try {
       const url = editingPartner ? "/api/partners" : "/api/partners";
       const method = editingPartner ? "PUT" : "POST";
@@ -103,9 +107,15 @@ export default function PartnersPage() {
         await fetchPartners();
         setDialogOpen(false);
         resetForm();
+      } else {
+        const data = await response.json();
+        setFormError(data.error || "Eroare la salvare");
       }
     } catch (error) {
       console.error("Error saving partner:", error);
+      setFormError("Eroare la salvare");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -155,6 +165,7 @@ export default function PartnersPage() {
       displayOrder: 0,
       isActive: true,
     });
+    setFormError("");
   };
 
   const filteredPartners = partners.filter((partner) => {
@@ -240,11 +251,17 @@ export default function PartnersPage() {
                 {filteredPartners.map((partner) => (
                   <TableRow key={partner.id}>
                     <TableCell>
-                      <img
-                        src={partner.logoUrl}
-                        alt={partner.name}
-                        className="h-10 w-10 rounded object-contain"
-                      />
+                      {partner.logoUrl ? (
+                        <img
+                          src={partner.logoUrl}
+                          alt={partner.name}
+                          className="h-10 w-10 rounded object-contain"
+                        />
+                      ) : (
+                        <div className="h-10 w-10 rounded bg-muted flex items-center justify-center text-muted-foreground text-xs">
+                          N/A
+                        </div>
+                      )}
                     </TableCell>
                     <TableCell className="font-medium">{partner.name}</TableCell>
                     <TableCell>
@@ -336,9 +353,8 @@ export default function PartnersPage() {
               <ImageUpload
                 currentImageUrl={formData.logoUrl}
                 onImageUploaded={(url) => setFormData({ ...formData, logoUrl: url })}
-                label="Logo Partener"
+                label="Logo Partener (opțional)"
                 type="partner"
-                required
               />
               <div className="grid gap-2">
                 <Label htmlFor="type">Tip</Label>
@@ -395,16 +411,20 @@ export default function PartnersPage() {
                 <Label htmlFor="isActive">Activ</Label>
               </div>
             </div>
+            {formError && (
+              <p className="text-sm text-destructive mb-4">{formError}</p>
+            )}
             <DialogFooter>
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => setDialogOpen(false)}
+                disabled={saving}
               >
                 Anulează
               </Button>
-              <Button type="submit">
-                {editingPartner ? "Salvează" : "Adaugă"}
+              <Button type="submit" disabled={saving}>
+                {saving ? "Se salvează..." : (editingPartner ? "Salvează" : "Adaugă")}
               </Button>
             </DialogFooter>
           </form>
