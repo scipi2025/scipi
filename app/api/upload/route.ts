@@ -31,8 +31,8 @@ export async function POST(request: NextRequest) {
     let allowedTypes: string[];
     let maxSize: number;
 
-    if (type === 'resource') {
-      // Allow documents for resources
+    if (type === 'resource' || type === 'document') {
+      // Allow documents for resources and event sections
       allowedTypes = [
         'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml',
         'application/pdf',
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
 
     if (!allowedTypes.includes(file.type)) {
       return NextResponse.json(
-        { error: type === 'resource' ? 'Invalid file type. Allowed: images, PDF, Word, Excel, PowerPoint, text, ZIP.' : 'Invalid file type. Only images are allowed.' },
+        { error: (type === 'resource' || type === 'document') ? 'Invalid file type. Allowed: images, PDF, Word, Excel, PowerPoint, text, ZIP.' : 'Invalid file type. Only images are allowed.' },
         { status: 400 }
       );
     }

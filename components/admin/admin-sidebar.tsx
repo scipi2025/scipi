@@ -13,6 +13,8 @@ import {
   LogOut,
   Home,
   UserPlus,
+  Image as ImageIcon,
+  Newspaper,
 } from "lucide-react";
 import {
   Sidebar,
@@ -40,6 +42,11 @@ const navigationItems = [
     title: "Dashboard",
     href: "/admin",
     icon: LayoutDashboard,
+  },
+  {
+    title: "Noutăți",
+    href: "/admin/news",
+    icon: Newspaper,
   },
   {
     title: "Cereri Membri",
@@ -70,6 +77,11 @@ const navigationItems = [
     title: "Mesaje Contact",
     href: "/admin/contact-submissions",
     icon: Mail,
+  },
+  {
+    title: "Carousel Imagini",
+    href: "/admin/carousel",
+    icon: ImageIcon,
   },
 ];
 

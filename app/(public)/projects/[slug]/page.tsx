@@ -9,10 +9,10 @@ import Link from "next/link";
 // Force dynamic rendering to avoid database calls during build
 export const dynamic = 'force-dynamic';
 
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
   const project = await prisma.project.findUnique({
-    where: { id },
+    where: { slug },
   });
 
   if (!project) {
@@ -27,10 +27,10 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   };
 }
 
-export default async function ProjectDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export default async function ProjectDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
   const project = await prisma.project.findUnique({
-    where: { id },
+    where: { slug },
   });
 
   if (!project) {
@@ -38,7 +38,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
   }
 
   return (
-    <div className="container px-4 md:px-6 py-8 md:py-12 space-y-8">
+    <div className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12 space-y-8">
       {/* Back Button */}
       <Button variant="ghost" asChild>
         <Link href="/projects">

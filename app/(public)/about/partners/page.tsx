@@ -2,7 +2,7 @@
 /* eslint-disable @next/next/no-img-element */
 import { prisma } from "@/lib/db";
 import { Card, CardContent } from "@/components/ui/card";
-import { ExternalLink, Building2, Globe, HandshakeIcon, LucideIcon } from "lucide-react";
+import { ExternalLink, Building2, Globe, HandshakeIcon, LucideIcon, Users } from "lucide-react";
 import type { Metadata } from "next";
 import { Partner } from "@prisma/client";
 
@@ -115,29 +115,37 @@ export default async function PartnersPage() {
       </div>
 
       {/* Introduction */}
-      <Card>
-        <CardContent className="pt-6">
-          <p className="text-lg leading-relaxed">
-            Activitățile <strong>Societății pentru Cercetare și Inovare în Patologii Infecțioase</strong> sunt realizate în permanentă colaborare cu partenerii instituționali și alte societăți profesionale din România și din străinătate.
-          </p>
+      <Card className="border-l-4 border-l-primary bg-gradient-to-r from-primary/5 to-transparent">
+        <CardContent className="pt-6 pb-6">
+          <div className="flex gap-4">
+            <div className="hidden sm:flex size-12 items-center justify-center rounded-xl bg-primary/10 shrink-0">
+              <Users className="size-6 text-primary" />
+            </div>
+            <div className="space-y-3">
+              <h3 className="text-xl font-semibold text-primary">Colaborări și parteneriate</h3>
+              <p className="text-base leading-relaxed text-muted-foreground">
+                <strong className="text-foreground">Societatea pentru Cercetare și Inovare în Patologii Infecțioase</strong> își desfășoară activitatea în strânsă colaborare cu parteneri instituționali, organizații academice și societăți profesionale din România și din străinătate, în cadrul unor inițiative comune de cercetare, educație medicală și dezvoltare profesională.
+              </p>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
       {/* Partner Sections */}
       <PartnerSection
-        title="Parteneri Instituționali"
+        title="Parteneri naționali"
         icon={Building2}
         partners={institutional}
       />
 
       <PartnerSection
-        title="Colaborări cu Societăți Internaționale"
+        title="Parteneri internaționali"
         icon={Globe}
         partners={international}
       />
 
       <PartnerSection
-        title="Parteneri Sponsori"
+        title="Sponsori"
         icon={HandshakeIcon}
         partners={sponsors}
       />
@@ -145,17 +153,20 @@ export default async function PartnersPage() {
       {/* Contact Card */}
       <Card className="bg-primary/5 border-primary/20">
         <CardContent className="pt-6">
-          <div className="text-center space-y-2">
-            <h3 className="text-xl font-bold">Devino Partener SCIPI</h3>
+          <div className="text-center space-y-3">
+            <h3 className="text-xl font-bold">Devino partener SCIPI</h3>
             <p className="text-muted-foreground">
-              Dacă instituția sau compania ta este interesată să colaboreze cu SCIPI,
-              te rugăm să ne contactezi la{" "}
+              Construim parteneriate pentru cercetare, educație medicală și inovare în domeniul bolilor infecțioase.
+            </p>
+            <p className="text-muted-foreground">
+              Contactează-ne la{" "}
               <a
                 href="mailto:secretariat.scipi@gmail.com"
                 className="font-medium text-primary hover:underline"
               >
                 secretariat.scipi@gmail.com
               </a>
+              {" "}pentru a explora oportunități de parteneriat.
             </p>
           </div>
         </CardContent>

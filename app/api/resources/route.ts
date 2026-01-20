@@ -1,6 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { validateSession } from '@/lib/auth';
+import { generateSlug } from '@/lib/utils';
+
+// Helper function to generate unique slug for resources
+async function generateUniqueResourceSlug(title: string, excludeId?: string): Promise<string> {
+  const baseSlug = generateSlug(title);
+  let slug = baseSlug;
+  let counter = 1;
+
+  while (true) {
+    const existing = await prisma.resource.findUnique({
+      where: { slug },
+      select: { id: true },
+    });
+    
+    if (!existing || (excludeId && existing.id === excludeId)) {
+      return slug;
+    }
+    
+    slug = `${baseSlug}-${counter}`;
+    counter++;
+  }
+}
 
 // GET /api/resources - List all resources
 export async function GET(request: NextRequest) {
@@ -66,9 +88,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Generate unique slug from title
+    const slug = await generateUniqueResourceSlug(title);
+
     const resource = await prisma.resource.create({
       data: {
         title,
+        slug,
         description,
         url: url || null,
         type,
@@ -128,10 +154,17 @@ export async function PUT(request: NextRequest) {
       });
     }
 
+    // Generate new slug if title changed
+    let slug: string | undefined;
+    if (title) {
+      slug = await generateUniqueResourceSlug(title, id);
+    }
+
     const resource = await prisma.resource.update({
       where: { id },
       data: {
         ...(title && { title }),
+        ...(slug && { slug }),
         ...(description && { description }),
         ...(url !== undefined && { url }),
         ...(type && { type }),

@@ -10,9 +10,28 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Pencil, Trash2, Calendar } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Plus, Pencil, Trash2, Calendar, Layers, Eye, EyeOff } from "lucide-react";
 import { RichTextEditor } from "@/components/admin/RichTextEditor";
 import { ImageUpload } from "@/components/admin/ImageUpload";
+import { EventSectionEditor, EventSection } from "@/components/admin/EventSectionEditor";
+
+interface SectionFile {
+  id?: string;
+  fileName: string;
+  fileUrl: string;
+  fileSize: number;
+  mimeType: string;
+}
+
+interface EventSectionData {
+  id?: string;
+  title?: string;
+  content?: string;
+  backgroundColor?: string;
+  displayOrder: number;
+  files?: SectionFile[];
+}
 
 interface Event {
   id: string;
@@ -22,8 +41,13 @@ interface Event {
   detailedDescription?: string | null;
   imageUrl?: string | null;
   eventDate?: string | null;
+  dateText?: string | null;
+  location?: string | null;
+  displayOrder: number;
+  isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  sections?: EventSectionData[];
 }
 
 export default function AdminEventsPage() {
@@ -40,6 +64,11 @@ export default function AdminEventsPage() {
     detailedDescription: "",
     imageUrl: "",
     eventDate: "",
+    dateText: "",
+    location: "",
+    displayOrder: 0,
+    isActive: true,
+    sections: [] as EventSection[],
   });
 
   useEffect(() => {
@@ -48,7 +77,7 @@ export default function AdminEventsPage() {
 
   const fetchEvents = async () => {
     try {
-      const response = await fetch("/api/events");
+      const response = await fetch("/api/events?includeSections=true&includeInactive=true");
       if (response.ok) {
         const data = await response.json();
         setEvents(data);
@@ -110,6 +139,11 @@ export default function AdminEventsPage() {
       detailedDescription: event.detailedDescription || "",
       imageUrl: event.imageUrl || "",
       eventDate: event.eventDate ? event.eventDate.split("T")[0] : "",
+      dateText: event.dateText || "",
+      location: event.location || "",
+      displayOrder: event.displayOrder || 0,
+      isActive: event.isActive,
+      sections: event.sections || [],
     });
     setDialogOpen(true);
   };
@@ -128,7 +162,30 @@ export default function AdminEventsPage() {
       detailedDescription: "",
       imageUrl: "",
       eventDate: "",
+      dateText: "",
+      location: "",
+      displayOrder: 0,
+      isActive: true,
+      sections: [],
     });
+  };
+
+  const handleToggleActive = async (event: Event) => {
+    try {
+      const response = await fetch("/api/events", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: event.id,
+          isActive: !event.isActive,
+        }),
+      });
+      if (response.ok) {
+        await fetchEvents();
+      }
+    } catch (error) {
+      console.error("Error toggling event visibility:", error);
+    }
   };
 
   const getEventTypeLabel = (type: string | null) => {
@@ -194,25 +251,42 @@ export default function AdminEventsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-12">Ord.</TableHead>
                   <TableHead>Titlu & Tip</TableHead>
                   <TableHead>Data</TableHead>
-                  <TableHead>Creat</TableHead>
+                  <TableHead className="w-[100px]">Vizibil</TableHead>
                   <TableHead className="text-right">Acțiuni</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {events.map((event) => (
-                  <TableRow key={event.id}>
+                  <TableRow key={event.id} className={!event.isActive ? "opacity-50" : ""}>
+                    <TableCell className="font-medium text-center">
+                      {event.displayOrder}
+                    </TableCell>
                     <TableCell>
                       <div className="space-y-1">
                         <div className="font-medium">{event.title}</div>
-                        <Badge className={getEventTypeBadgeColor(event.type)}>
-                          {getEventTypeLabel(event.type)}
-                        </Badge>
+                        <div className="flex items-center gap-2">
+                          <Badge className={getEventTypeBadgeColor(event.type)}>
+                            {getEventTypeLabel(event.type)}
+                          </Badge>
+                          {event.sections && event.sections.length > 0 && (
+                            <Badge variant="outline" className="text-xs">
+                              <Layers className="size-3 mr-1" />
+                              {event.sections.length} secțiuni
+                            </Badge>
+                          )}
+                        </div>
                       </div>
                     </TableCell>
                     <TableCell>
-                      {event.eventDate ? (
+                      {event.dateText ? (
+                        <div className="flex items-center text-sm text-muted-foreground">
+                          <Calendar className="size-4 mr-2" />
+                          {event.dateText}
+                        </div>
+                      ) : event.eventDate ? (
                         <div className="flex items-center text-sm text-muted-foreground">
                           <Calendar className="size-4 mr-2" />
                           {new Date(event.eventDate).toLocaleDateString("ro-RO", {
@@ -225,8 +299,20 @@ export default function AdminEventsPage() {
                         <span className="text-sm text-muted-foreground">Fără dată</span>
                       )}
                     </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {new Date(event.createdAt).toLocaleDateString("ro-RO")}
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleToggleActive(event)}
+                        className={event.isActive ? "text-green-600" : "text-muted-foreground"}
+                        title={event.isActive ? "Vizibil pe site - click pentru a ascunde" : "Ascuns - click pentru a face vizibil"}
+                      >
+                        {event.isActive ? (
+                          <Eye className="size-4" />
+                        ) : (
+                          <EyeOff className="size-4" />
+                        )}
+                      </Button>
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
@@ -257,7 +343,7 @@ export default function AdminEventsPage() {
 
       {/* Add/Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-h-[90vh] w-[1200px] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {editingEvent ? "Editează Eveniment" : "Adaugă Eveniment"}
@@ -266,7 +352,7 @@ export default function AdminEventsPage() {
               Completează informațiile evenimentului. Folosește editorul pentru detalii complete.
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} className="">
             <div className="grid gap-6 py-4">
               <div className="grid gap-2">
                 <Label htmlFor="title">Titlu Eveniment *</Label>
@@ -313,16 +399,66 @@ export default function AdminEventsPage() {
                 />
               </div>
 
-              <div className="grid gap-2">
-                <Label htmlFor="eventDate">Data Eveniment</Label>
-                <Input
-                  id="eventDate"
-                  type="date"
-                  value={formData.eventDate}
-                  onChange={(e) =>
-                    setFormData({ ...formData, eventDate: e.target.value })
-                  }
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="eventDate">Data Eveniment (exactă)</Label>
+                  <Input
+                    id="eventDate"
+                    type="date"
+                    value={formData.eventDate}
+                    onChange={(e) =>
+                      setFormData({ ...formData, eventDate: e.target.value })
+                    }
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Folosește pentru o dată exactă
+                  </p>
+                </div>
+
+                <div className="grid gap-2">
+                  <Label htmlFor="dateText">Interval/Text Dată (opțional)</Label>
+                  <Input
+                    id="dateText"
+                    value={formData.dateText}
+                    onChange={(e) =>
+                      setFormData({ ...formData, dateText: e.target.value })
+                    }
+                    placeholder="Ex: Iunie - August 2025"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Folosește pentru intervale (are prioritate față de data exactă)
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="location">Locație (opțional)</Label>
+                  <Input
+                    id="location"
+                    value={formData.location}
+                    onChange={(e) =>
+                      setFormData({ ...formData, location: e.target.value })
+                    }
+                    placeholder="Ex: București, România"
+                  />
+                </div>
+
+                <div className="grid gap-2">
+                  <Label htmlFor="displayOrder">Ordine Afișare</Label>
+                  <Input
+                    id="displayOrder"
+                    type="number"
+                    value={formData.displayOrder}
+                    onChange={(e) =>
+                      setFormData({ ...formData, displayOrder: parseInt(e.target.value) || 0 })
+                    }
+                    min={0}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Număr mai mic = apare primul
+                  </p>
+                </div>
               </div>
 
               <div className="grid gap-2">
@@ -340,17 +476,38 @@ export default function AdminEventsPage() {
               </div>
 
               <div className="grid gap-2">
-                <Label>Detalii Complete ale Evenimentului</Label>
+                <Label>Detalii Complete ale Evenimentului (opțional)</Label>
                 <p className="text-sm text-muted-foreground mb-2">
-                  Folosește editorul pentru a adăuga detalii complete: descriere, comitete organizare, program, locație, etc.
+                  Poți folosi acest editor pentru text introductiv, sau folosește secțiunile de mai jos pentru conținut structurat.
                 </p>
                 <RichTextEditor
                   content={formData.detailedDescription}
                   onChange={(html) =>
                     setFormData({ ...formData, detailedDescription: html })
                   }
-                  placeholder="Scrie detaliile complete ale evenimentului..."
+                  placeholder="Text introductiv (opțional)..."
                 />
+              </div>
+
+              {/* Event Sections */}
+              <div className="pt-4 border-t">
+                <EventSectionEditor
+                  sections={formData.sections}
+                  onChange={(sections) => setFormData({ ...formData, sections })}
+                />
+              </div>
+
+              <div className="flex items-center space-x-2 pt-4 border-t">
+                <Checkbox
+                  id="isActive"
+                  checked={formData.isActive}
+                  onCheckedChange={(checked) =>
+                    setFormData({ ...formData, isActive: checked as boolean })
+                  }
+                />
+                <Label htmlFor="isActive" className="text-sm font-normal">
+                  Vizibil pe site (activ) - Debifează pentru a salva ca draft
+                </Label>
               </div>
             </div>
 

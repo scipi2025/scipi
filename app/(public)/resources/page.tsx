@@ -88,7 +88,7 @@ export default async function ResourcesPage() {
               <>
                 {resource.files.length === 1 ? (
                   <Button asChild variant={resource.url ? "outline" : "default"} className="w-full">
-                    <a href={resource.files[0].fileUrl} download={resource.files[0].fileName}>
+                    <a href={`/resources/${resource.slug}/download`} target="_blank" rel="noopener noreferrer">
                       Descarcă Fișier
                       <Download className="ml-2 size-4" />
                     </a>
@@ -96,7 +96,7 @@ export default async function ResourcesPage() {
                 ) : (
                   <div className="space-y-2">
                     <p className="text-sm font-medium">Descarcă fișiere:</p>
-                    {resource.files.map((file: any) => (
+                    {resource.files.map((file: any, index: number) => (
                       <Button 
                         key={file.id} 
                         asChild 
@@ -104,7 +104,7 @@ export default async function ResourcesPage() {
                         size="sm" 
                         className="w-full justify-start"
                       >
-                        <a href={file.fileUrl} download={file.fileName}>
+                        <a href={`/resources/${resource.slug}/download?file=${index}`} target="_blank" rel="noopener noreferrer">
                           <Download className="mr-2 size-3" />
                           <span className="truncate">{file.fileName}</span>
                         </a>
@@ -130,10 +130,10 @@ export default async function ResourcesPage() {
   );
 
   return (
-    <div className="container px-4 py-12 md:px-6 md:py-16">
+    <div className="max-w-7xl mx-auto px-4 py-12 md:px-6 md:py-16">
       <div className="mb-8">
         <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl mb-4">
-          Resurse Educaționale
+          Resurse educaționale
         </h1>
         <p className="text-lg text-muted-foreground max-w-[700px]">
           Accesează ghiduri, articole și documente utile pentru dezvoltarea ta

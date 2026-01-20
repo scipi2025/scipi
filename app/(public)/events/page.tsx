@@ -18,7 +18,11 @@ export const metadata: Metadata = {
 
 async function getEvents() {
   const events = await prisma.event.findMany({
-    orderBy: { createdAt: "desc" },
+    where: { isActive: true },
+    orderBy: [
+      { displayOrder: "asc" },
+      { createdAt: "desc" },
+    ],
   });
 
   return events;
@@ -50,7 +54,7 @@ export default async function EventsPage() {
   const events = await getEvents();
 
   return (
-    <div className="container px-4 md:px-6 py-8 md:py-12 space-y-12">
+    <div className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12 space-y-12">
       {/* Header Section */}
       <div className="space-y-4">
         <h1 className="text-4xl font-bold tracking-tight">Evenimente</h1>
@@ -61,7 +65,7 @@ export default async function EventsPage() {
       <Card>
         <CardContent className="pt-6 space-y-4">
           <p className="text-lg leading-relaxed">
-            <strong>Societatea pentru Cercetare și Inovare în Patologii Infecțioase</strong> organizează și participă la diverse evenimente științifice: conferințe naționale și internaționale, întâlniri de lucru, workshop-uri și seminarii. Aceste evenimente oferă oportunități de networking, schimb de experiență și diseminare a rezultatelor cercetării în domeniul bolilor infecțioase.
+            <strong>Societatea pentru Cercetare și Inovare în Patologii Infecțioase</strong> organizează și participă în calitate de partener la diverse evenimente științifice: congrese și conferințe naționale sau internaționale, simpozioane, workshop-uri sau seminarii. Aceste evenimente oferă oportunități de networking, schimb de experiență și diseminare a rezultatelor cercetării în domeniul bolilor infecțioase și a specialităților conexe. Află mai jos care sunt evenimentele noastre și cum poți participa la acestea.
           </p>
         </CardContent>
       </Card>
@@ -81,7 +85,7 @@ export default async function EventsPage() {
 
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {events.map((event) => (
-              <Card key={event.id} className="hover:shadow-lg transition-all group overflow-hidden">
+              <Card key={event.id} className="hover:shadow-lg transition-all group overflow-hidden border-2">
                 {event.imageUrl && (
                   <div className="relative w-full h-48 overflow-hidden">
                     <Image
@@ -92,34 +96,34 @@ export default async function EventsPage() {
                     />
                   </div>
                 )}
-                <CardHeader>
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    <Badge className={getEventTypeBadgeColor(event.type)}>
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between gap-2 mb-3">
+                    <Badge className={`${getEventTypeBadgeColor(event.type)} text-sm font-medium px-3 py-1`}>
                       {getEventTypeLabel(event.type)}
                     </Badge>
-                    {event.eventDate && (
-                      <div className="flex items-center text-xs text-muted-foreground">
-                        <Calendar className="size-3 mr-1" />
-                        {new Date(event.eventDate).toLocaleDateString("ro-RO", {
+                    {(event.dateText || event.eventDate) && (
+                      <div className="flex items-center text-sm font-medium text-foreground bg-muted px-2 py-1 rounded">
+                        <Calendar className="size-4 mr-1.5" />
+                        {event.dateText || (event.eventDate && new Date(event.eventDate).toLocaleDateString("ro-RO", {
                           day: "numeric",
                           month: "short",
                           year: "numeric",
-                        })}
+                        }))}
                       </div>
                     )}
                   </div>
-                  <CardTitle className="line-clamp-2 group-hover:text-primary transition-colors">
+                  <CardTitle className="text-xl line-clamp-2 group-hover:text-primary transition-colors">
                     {event.title}
                   </CardTitle>
                   {event.shortDescription && (
-                    <CardDescription className="line-clamp-3 mt-2">
+                    <CardDescription className="line-clamp-3 mt-2 text-base">
                       {event.shortDescription}
                     </CardDescription>
                   )}
                 </CardHeader>
                 <CardContent>
                   <Button asChild className="w-full" variant="outline">
-                    <Link href={`/events/${event.id}`}>
+                    <Link href={`/events/${event.slug}`}>
                       Detalii Eveniment
                       <ArrowRight className="ml-2 size-4" />
                     </Link>
@@ -145,9 +149,9 @@ export default async function EventsPage() {
       <Card className="bg-primary/5 border-primary/20">
         <CardContent className="pt-6">
           <div className="text-center space-y-4">
-            <h3 className="text-xl font-bold">Vrei să participi la evenimentele noastre?</h3>
+            <h3 className="text-xl font-bold">Ești interesat de evenimentele SCIPI?</h3>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Dacă ești interesat să participi la evenimentele SCIPI sau dorești să propui un eveniment, te rugăm să ne contactezi.
+              Dacă vrei să organizezi un eveniment în parteneriat cu SCIPI sau ai întrebări legate de un eveniment te rugăm să ne contactezi.
             </p>
             <Button asChild size="lg">
               <Link href="/contact">

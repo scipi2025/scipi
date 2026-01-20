@@ -153,6 +153,16 @@
   .animate-scroll:hover {
     animation-play-state: paused;
   }
+
+  /* Logo hover animation - ultra smooth wave effect */
+  .logo-animate {
+    transition: transform 0.8s ease, filter 0.8s ease;
+  }
+
+  .logo-animate:hover {
+    transform: scale(1.05) translateY(-2px);
+    filter: drop-shadow(0 6px 16px rgba(59, 130, 246, 0.2)) drop-shadow(0 4px 12px rgba(0, 0, 0, 0.08));
+  }
 }
 
 :root {
@@ -262,4 +272,98 @@
 
 .ProseMirror [style*="text-align: left"] {
   text-align: left;
+}
+
+/* Prose styles for consistent rendering between editor and public site */
+.prose h1 {
+  font-size: 2rem !important;
+  font-weight: bold !important;
+  margin: 1.5rem 0 0.75rem 0 !important;
+  line-height: 1.2 !important;
+}
+
+.prose h2 {
+  font-size: 1.5rem !important;
+  font-weight: bold !important;
+  margin: 1.25rem 0 0.5rem 0 !important;
+  line-height: 1.3 !important;
+}
+
+.prose h3 {
+  font-size: 1.25rem !important;
+  font-weight: bold !important;
+  margin: 1rem 0 0.5rem 0 !important;
+  line-height: 1.4 !important;
+}
+
+.prose p {
+  margin: 0.5rem 0 !important;
+  line-height: 1.7 !important;
+}
+
+.prose ul {
+  list-style-type: disc !important;
+  padding-left: 1.5rem !important;
+  margin: 0.75rem 0 !important;
+}
+
+.prose ol {
+  list-style-type: decimal !important;
+  padding-left: 1.5rem !important;
+  margin: 0.75rem 0 !important;
+}
+
+.prose li {
+  margin: 0.25rem 0 !important;
+  padding-left: 0.25rem !important;
+}
+
+.prose li p {
+  margin: 0 !important;
+}
+
+.prose a {
+  color: hsl(var(--primary)) !important;
+  text-decoration: underline !important;
+}
+
+.prose strong {
+  font-weight: bold !important;
+}
+
+.prose em {
+  font-style: italic !important;
+}
+
+.prose u {
+  text-decoration: underline !important;
+}
+
+.prose img {
+  max-width: 100% !important;
+  height: auto !important;
+  border-radius: 0.5rem !important;
+  margin: 1rem 0 !important;
+}
+
+.prose [style*="text-align: center"] {
+  text-align: center !important;
+}
+
+.prose [style*="text-align: right"] {
+  text-align: right !important;
+}
+
+.prose [style*="text-align: left"] {
+  text-align: left !important;
+}
+
+/* First element in prose should not have top margin */
+.prose > *:first-child {
+  margin-top: 0 !important;
+}
+
+/* Last element in prose should not have bottom margin */
+.prose > *:last-child {
+  margin-bottom: 0 !important;
 }

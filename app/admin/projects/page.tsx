@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Pencil, Trash2, Loader2, Calendar } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, Calendar, ArrowUp, ArrowDown, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Checkbox } from "@/components/ui/checkbox";
 import { AdminHeader } from "@/components/admin/admin-header";
 import { RichTextEditor } from "@/components/admin/RichTextEditor";
 import { ImageUpload } from "@/components/admin/ImageUpload";
@@ -42,6 +43,8 @@ interface Project {
   status?: string | null;
   startDate?: string | null;
   endDate?: string | null;
+  displayOrder: number;
+  isActive: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -62,6 +65,7 @@ export default function ProjectsPage() {
     status: "ongoing",
     startDate: "",
     endDate: "",
+    isActive: true,
   });
 
   useEffect(() => {
@@ -70,7 +74,7 @@ export default function ProjectsPage() {
 
   const fetchProjects = async () => {
     try {
-      const response = await fetch("/api/projects");
+      const response = await fetch("/api/projects?includeInactive=true");
       if (response.ok) {
         const data = await response.json();
         setProjects(data);
@@ -132,6 +136,7 @@ export default function ProjectsPage() {
       status: project.status || "ongoing",
       startDate: project.startDate ? project.startDate.split("T")[0] : "",
       endDate: project.endDate ? project.endDate.split("T")[0] : "",
+      isActive: project.isActive,
     });
     setDialogOpen(true);
   };
@@ -150,13 +155,62 @@ export default function ProjectsPage() {
       status: "ongoing",
       startDate: "",
       endDate: "",
+      isActive: true,
     });
+  };
+
+  const handleToggleActive = async (project: Project) => {
+    try {
+      const response = await fetch("/api/projects", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: project.id,
+          isActive: !project.isActive,
+        }),
+      });
+      if (response.ok) {
+        await fetchProjects();
+      }
+    } catch (error) {
+      console.error("Error toggling project visibility:", error);
+    }
   };
 
   const filteredProjects = projects.filter((project) => {
     if (activeTab === "all") return true;
     return project.status === activeTab;
   });
+
+  const moveProject = async (projectId: string, direction: "up" | "down") => {
+    const currentIndex = projects.findIndex((p) => p.id === projectId);
+    if (currentIndex === -1) return;
+    
+    const newIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
+    if (newIndex < 0 || newIndex >= projects.length) return;
+
+    const currentProject = projects[currentIndex];
+    const swapProject = projects[newIndex];
+
+    try {
+      // Swap displayOrder values
+      await Promise.all([
+        fetch("/api/projects", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: currentProject.id, displayOrder: swapProject.displayOrder }),
+        }),
+        fetch("/api/projects", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: swapProject.id, displayOrder: currentProject.displayOrder }),
+        }),
+      ]);
+      await fetchProjects();
+    } catch (error) {
+      console.error("Error reordering projects:", error);
+    }
+  };
 
   const formatDate = (date: string | null) => {
     if (!date) return "-";
@@ -196,15 +250,40 @@ export default function ProjectsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-16">Ordine</TableHead>
                   <TableHead>Titlu & Status</TableHead>
                   <TableHead>Date</TableHead>
+                  <TableHead className="w-[100px]">Vizibil</TableHead>
                   <TableHead>Creat</TableHead>
                   <TableHead className="text-right">Acțiuni</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {projects.map((project) => (
-                  <TableRow key={project.id}>
+                {projects.map((project, index) => (
+                  <TableRow key={project.id} className={!project.isActive ? "opacity-50" : ""}>
+                    <TableCell>
+                      <div className="flex flex-col gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => moveProject(project.id, "up")}
+                          disabled={index === 0}
+                          className="h-6 w-6 p-0"
+                        >
+                          <ArrowUp className="size-3" />
+                        </Button>
+                        <span className="text-xs text-center text-muted-foreground">{project.displayOrder}</span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => moveProject(project.id, "down")}
+                          disabled={index === projects.length - 1}
+                          className="h-6 w-6 p-0"
+                        >
+                          <ArrowDown className="size-3" />
+                        </Button>
+                      </div>
+                    </TableCell>
                     <TableCell className="font-medium max-w-md">
                       <div className="space-y-1">
                         <div className="truncate">{project.title}</div>
@@ -236,6 +315,21 @@ export default function ProjectsPage() {
                           <span className="text-muted-foreground">Fără date</span>
                         )}
                       </div>
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleToggleActive(project)}
+                        className={project.isActive ? "text-green-600" : "text-muted-foreground"}
+                        title={project.isActive ? "Vizibil pe site - click pentru a ascunde" : "Ascuns - click pentru a face vizibil"}
+                      >
+                        {project.isActive ? (
+                          <Eye className="size-4" />
+                        ) : (
+                          <EyeOff className="size-4" />
+                        )}
+                      </Button>
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
                       {new Date(project.createdAt).toLocaleDateString("ro-RO")}
@@ -361,6 +455,19 @@ export default function ProjectsPage() {
                   }
                   placeholder="Scrie conținutul complet al proiectului..."
                 />
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="isActive"
+                  checked={formData.isActive}
+                  onCheckedChange={(checked) =>
+                    setFormData({ ...formData, isActive: checked as boolean })
+                  }
+                />
+                <Label htmlFor="isActive" className="text-sm font-normal">
+                  Vizibil pe site (activ) - Debifează pentru a salva ca draft
+                </Label>
               </div>
             </div>
 

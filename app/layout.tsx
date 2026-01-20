@@ -33,6 +33,11 @@ export const metadata: Metadata = {
   authors: [{ name: "SCIPI" }],
   creator: "SCIPI",
   publisher: "SCIPI",
+  icons: {
+    icon: "/fav.png",
+    shortcut: "/fav.png",
+    apple: "/fav.png",
+  },
   openGraph: {
     type: "website",
     locale: "ro_RO",

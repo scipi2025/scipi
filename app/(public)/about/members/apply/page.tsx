@@ -71,7 +71,7 @@ export default function MembershipApplicationPage() {
 
   if (isSuccess) {
     return (
-      <div className="max-w-2xl mx-auto space-y-6">
+      <div className="space-y-6">
         <Button variant="ghost" asChild>
           <Link href="/about/members">
             <ArrowLeft className="mr-2 size-4" />
@@ -102,7 +102,7 @@ export default function MembershipApplicationPage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
+    <div className="space-y-6">
       <Button variant="ghost" asChild>
         <Link href="/about/members">
           <ArrowLeft className="mr-2 size-4" />

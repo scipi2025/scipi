@@ -1,12 +1,68 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { validateSession } from '@/lib/auth';
+import { generateSlug } from '@/lib/utils';
+
+// Types for sections
+interface EventSectionFile {
+  id?: string;
+  fileName: string;
+  fileUrl: string;
+  fileSize: number;
+  mimeType: string;
+}
+
+interface EventSectionInput {
+  id?: string;
+  title?: string;
+  content?: string;
+  backgroundColor?: string;
+  displayOrder: number;
+  files?: EventSectionFile[];
+}
+
+// Helper function to generate unique slug for events
+async function generateUniqueEventSlug(title: string, excludeId?: string): Promise<string> {
+  const baseSlug = generateSlug(title);
+  let slug = baseSlug;
+  let counter = 1;
+
+  while (true) {
+    const existing = await prisma.event.findUnique({
+      where: { slug },
+      select: { id: true },
+    });
+    
+    if (!existing || (excludeId && existing.id === excludeId)) {
+      return slug;
+    }
+    
+    slug = `${baseSlug}-${counter}`;
+    counter++;
+  }
+}
 
 // GET /api/events - List all events
 export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url);
+    const includeSections = searchParams.get('includeSections') === 'true';
+    const includeInactive = searchParams.get('includeInactive') === 'true';
+
     const events = await prisma.event.findMany({
-      orderBy: { createdAt: 'desc' },
+      where: includeInactive ? undefined : { isActive: true },
+      orderBy: [
+        { displayOrder: 'asc' },
+        { createdAt: 'desc' },
+      ],
+      include: includeSections ? {
+        sections: {
+          orderBy: { displayOrder: 'asc' },
+          include: {
+            files: true,
+          },
+        },
+      } : undefined,
     });
 
     return NextResponse.json(events);
@@ -34,7 +90,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { title, type, shortDescription, detailedDescription, imageUrl, eventDate } = body;
+    const { title, type, shortDescription, detailedDescription, imageUrl, eventDate, dateText, location, displayOrder, sections, isActive } = body;
 
     // Validation
     if (!title || !type || !shortDescription) {
@@ -44,14 +100,44 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Generate unique slug from title
+    const slug = await generateUniqueEventSlug(title);
+
     const event = await prisma.event.create({
       data: {
         title,
+        slug,
         type,
         shortDescription,
         detailedDescription: detailedDescription || null,
         imageUrl: imageUrl || null,
         eventDate: eventDate ? new Date(eventDate) : null,
+        dateText: dateText || null,
+        location: location || null,
+        displayOrder: displayOrder || 0,
+        isActive: isActive !== undefined ? isActive : true,
+        sections: sections && sections.length > 0 ? {
+          create: sections.map((section: EventSectionInput) => ({
+            title: section.title || null,
+            content: section.content || null,
+            backgroundColor: section.backgroundColor || null,
+            displayOrder: section.displayOrder || 0,
+            files: section.files && section.files.length > 0 ? {
+              create: section.files.map((file: EventSectionFile) => ({
+                fileName: file.fileName,
+                fileUrl: file.fileUrl,
+                fileSize: file.fileSize,
+                mimeType: file.mimeType,
+              })),
+            } : undefined,
+          })),
+        } : undefined,
+      },
+      include: {
+        sections: {
+          orderBy: { displayOrder: 'asc' },
+          include: { files: true },
+        },
       },
     });
 
@@ -80,21 +166,135 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { id, title, type, shortDescription, detailedDescription, imageUrl, eventDate } = body;
+    const { id, title, type, shortDescription, detailedDescription, imageUrl, eventDate, dateText, location, displayOrder, sections, isActive } = body;
 
     if (!id) {
       return NextResponse.json({ error: 'Event ID is required' }, { status: 400 });
+    }
+
+    // Generate new slug if title changed
+    let slug: string | undefined;
+    if (title) {
+      slug = await generateUniqueEventSlug(title, id);
+    }
+
+    // Handle sections update if provided
+    if (sections !== undefined) {
+      // Get existing sections to determine what to delete
+      const existingSections = await prisma.eventSection.findMany({
+        where: { eventId: id },
+        select: { id: true },
+      });
+
+      const existingSectionIds = existingSections.map(s => s.id);
+      const incomingSectionIds = sections
+        .filter((s: EventSectionInput) => s.id)
+        .map((s: EventSectionInput) => s.id);
+
+      // Delete sections that are no longer in the list
+      const sectionsToDelete = existingSectionIds.filter(
+        (existingId: string) => !incomingSectionIds.includes(existingId)
+      );
+
+      if (sectionsToDelete.length > 0) {
+        await prisma.eventSection.deleteMany({
+          where: { id: { in: sectionsToDelete } },
+        });
+      }
+
+      // Update or create sections
+      for (const section of sections as EventSectionInput[]) {
+        if (section.id) {
+          // Update existing section
+          // First, get existing files
+          const existingFiles = await prisma.eventSectionFile.findMany({
+            where: { sectionId: section.id },
+            select: { id: true },
+          });
+
+          const existingFileIds = existingFiles.map(f => f.id);
+          const incomingFileIds = (section.files || [])
+            .filter((f: EventSectionFile) => f.id)
+            .map((f: EventSectionFile) => f.id);
+
+          // Delete files that are no longer in the list
+          const filesToDelete = existingFileIds.filter(
+            (existingId: string) => !incomingFileIds.includes(existingId)
+          );
+
+          if (filesToDelete.length > 0) {
+            await prisma.eventSectionFile.deleteMany({
+              where: { id: { in: filesToDelete } },
+            });
+          }
+
+          // Update section
+          await prisma.eventSection.update({
+            where: { id: section.id },
+            data: {
+              title: section.title || null,
+              content: section.content || null,
+              backgroundColor: section.backgroundColor || null,
+              displayOrder: section.displayOrder || 0,
+            },
+          });
+
+          // Create new files
+          const newFiles = (section.files || []).filter((f: EventSectionFile) => !f.id);
+          if (newFiles.length > 0) {
+            await prisma.eventSectionFile.createMany({
+              data: newFiles.map((file: EventSectionFile) => ({
+                sectionId: section.id!,
+                fileName: file.fileName,
+                fileUrl: file.fileUrl,
+                fileSize: file.fileSize,
+                mimeType: file.mimeType,
+              })),
+            });
+          }
+        } else {
+          // Create new section
+          await prisma.eventSection.create({
+            data: {
+              eventId: id,
+              title: section.title || null,
+              content: section.content || null,
+              backgroundColor: section.backgroundColor || null,
+              displayOrder: section.displayOrder || 0,
+              files: section.files && section.files.length > 0 ? {
+                create: section.files.map((file: EventSectionFile) => ({
+                  fileName: file.fileName,
+                  fileUrl: file.fileUrl,
+                  fileSize: file.fileSize,
+                  mimeType: file.mimeType,
+                })),
+              } : undefined,
+            },
+          });
+        }
+      }
     }
 
     const event = await prisma.event.update({
       where: { id },
       data: {
         ...(title && { title }),
+        ...(slug && { slug }),
         ...(type && { type }),
         ...(shortDescription !== undefined && { shortDescription }),
         ...(detailedDescription !== undefined && { detailedDescription }),
         ...(imageUrl !== undefined && { imageUrl }),
         ...(eventDate !== undefined && { eventDate: eventDate ? new Date(eventDate) : null }),
+        ...(dateText !== undefined && { dateText: dateText || null }),
+        ...(location !== undefined && { location: location || null }),
+        ...(displayOrder !== undefined && { displayOrder }),
+        ...(isActive !== undefined && { isActive }),
+      },
+      include: {
+        sections: {
+          orderBy: { displayOrder: 'asc' },
+          include: { files: true },
+        },
       },
     });
 

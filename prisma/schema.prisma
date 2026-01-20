@@ -1,16 +1,12 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
-// Admin user model
 model Admin {
   id           String    @id @default(cuid())
   email        String    @unique
@@ -22,7 +18,6 @@ model Admin {
   @@map("admins")
 }
 
-// Session model for JWT token management
 model Session {
   id        String   @id @default(cuid())
   adminId   String
@@ -35,13 +30,12 @@ model Session {
   @@map("sessions")
 }
 
-// Partner model (Institutional, International, Sponsors)
 model Partner {
   id           String   @id @default(cuid())
   name         String
-  description  String?  @db.Text // Scurtă descriere a partenerului
-  logoUrl      String?  // Logo opțional
-  type         String   // "institutional" | "international" | "sponsor"
+  description  String?
+  logoUrl      String?
+  type         String
   websiteUrl   String?
   displayOrder Int      @default(0)
   isActive     Boolean  @default(true)
@@ -53,42 +47,81 @@ model Partner {
   @@map("partners")
 }
 
-// Project model (Research projects)
 model Project {
-  id                    String    @id @default(cuid())
-  title                 String
-  shortDescription      String    @db.Text // Scurtă descriere pentru card
-  detailedDescription   String?   @db.Text // Descriere completă cu HTML (rich text)
-  status                String?   // "ongoing" | "completed"
-  startDate             DateTime? // Data de început
-  endDate               DateTime? // Data de finalizare
-  isActive              Boolean   @default(true)
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
+  id                  String    @id @default(cuid())
+  title               String
+  slug                String    @unique
+  shortDescription    String
+  detailedDescription String?
+  status              String?
+  startDate           DateTime?
+  endDate             DateTime?
+  displayOrder        Int       @default(0)
+  isActive            Boolean   @default(true)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  news                News[]
 
   @@index([status])
+  @@index([displayOrder])
   @@map("projects")
 }
 
-// Event model (Conferences, meetings, etc.)
 model Event {
   id                  String              @id @default(cuid())
   title               String
-  type                String?             // "conference" | "meeting" | "workshop" | "seminar" | "other"
-  shortDescription    String?             @db.Text // Scurtă descriere pentru card
-  detailedDescription String?             @db.Text // Descriere completă cu HTML (rich text) - include comitete, program, locație, etc.
-  imageUrl            String?             // Imagine pentru eveniment
-  eventDate           DateTime?           // Data evenimentului (opțional)
+  slug                String              @unique
+  type                String?
+  shortDescription    String?
+  detailedDescription String?
+  imageUrl            String?
+  eventDate           DateTime?
+  dateText            String?             // For date ranges like "Iunie - August 2025"
+  location            String?
+  displayOrder        Int                 @default(0)
   isActive            Boolean             @default(true)
   createdAt           DateTime            @default(now())
   updatedAt           DateTime            @updatedAt
   registrations       EventRegistration[]
+  news                News[]
+  sections            EventSection[]
 
   @@index([eventDate])
+  @@index([displayOrder])
   @@map("events")
 }
 
-// Event registration model (optional - for tracking registrations)
+model EventSection {
+  id              String              @id @default(cuid())
+  eventId         String
+  title           String?             // Optional section title (e.g., "Course Description", "Programme")
+  content         String?             // Rich text content
+  backgroundColor String?             // Background color for the section (e.g., "white", "primary", "muted")
+  displayOrder    Int                 @default(0)
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  event           Event               @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  files           EventSectionFile[]
+
+  @@index([eventId])
+  @@index([displayOrder])
+  @@map("event_sections")
+}
+
+model EventSectionFile {
+  id              String        @id @default(cuid())
+  sectionId       String
+  fileName        String
+  fileUrl         String
+  fileSize        Int
+  mimeType        String
+  createdAt       DateTime      @default(now())
+  section         EventSection  @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+
+  @@index([sectionId])
+  @@map("event_section_files")
+}
+
 model EventRegistration {
   id        String   @id @default(cuid())
   eventId   String
@@ -101,30 +134,30 @@ model EventRegistration {
   @@map("event_registrations")
 }
 
-// Resource model (Guides and articles)
 model Resource {
   id          String         @id @default(cuid())
   title       String
-  description String         @db.Text
-  url         String?        // External URL (optional)
-  type        String         // "guide" | "article" | "document"
+  slug        String         @unique
+  description String
+  url         String?
+  type        String
   isActive    Boolean        @default(true)
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
-  files       ResourceFile[] // Multiple files can be attached
+  news        News[]
+  files       ResourceFile[]
 
   @@index([type])
   @@map("resources")
 }
 
-// Resource files (multiple files per resource)
 model ResourceFile {
   id         String   @id @default(cuid())
   resourceId String
-  fileName   String   // Original file name
-  fileUrl    String   // Path to uploaded file
-  fileSize   Int      // File size in bytes
-  mimeType   String   // MIME type of the file
+  fileName   String
+  fileUrl    String
+  fileSize   Int
+  mimeType   String
   createdAt  DateTime @default(now())
   resource   Resource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
 
@@ -132,13 +165,12 @@ model ResourceFile {
   @@map("resource_files")
 }
 
-// Contact submission model (Contact form submissions)
 model ContactSubmission {
   id        String   @id @default(cuid())
   name      String
   email     String
   subject   String
-  message   String   @db.Text
+  message   String
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
 
@@ -147,27 +179,65 @@ model ContactSubmission {
   @@map("contact_submissions")
 }
 
-// Membership application model (SCIPI membership applications)
+model CarouselImage {
+  id           String   @id @default(cuid())
+  imageUrl     String
+  alt          String
+  displayOrder Int      @default(0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([displayOrder])
+  @@index([isActive])
+  @@map("carousel_images")
+}
+
+model News {
+  id           String    @id @default(cuid())
+  title        String
+  excerpt      String?
+  content      String?
+  linkType     String
+  linkUrl      String?
+  eventId      String?
+  projectId    String?
+  resourceId   String?
+  displayOrder Int       @default(0)
+  isActive     Boolean   @default(true)
+  publishedAt  DateTime  @default(now())
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  event        Event?    @relation(fields: [eventId], references: [id])
+  project      Project?  @relation(fields: [projectId], references: [id])
+  resource     Resource? @relation(fields: [resourceId], references: [id])
+
+  @@index([displayOrder])
+  @@index([isActive])
+  @@index([publishedAt])
+  @@map("news")
+}
+
 model MembershipApplication {
-  id                      String   @id @default(cuid())
-  firstName               String
-  lastName                String
-  email                   String
-  professionalGrade       String   // "medic_rezident" | "medic_specialist" | "medic_primar" | "student_medicina" | "asistent_medical" | "alta"
-  otherProfessionalGrade  String?  // Filled if professionalGrade is "alta"
-  medicalSpecialty        String
-  academicDegree          String?  // Grad didactic
+  id                       String    @id @default(cuid())
+  firstName                String
+  lastName                 String
+  email                    String
+  professionalGrade        String
+  otherProfessionalGrade   String?
+  medicalSpecialty         String
+  academicDegree           String?
   institutionalAffiliation String
-  membershipType          String   // "membru_activ" | "medic_asociat"
-  researchInterests       String   @db.Text
-  gdprConsent             Boolean  @default(false)
-  feeConsent              Boolean  @default(false)
-  newsletterConsent       Boolean  @default(false)
-  status                  String   @default("pending") // "pending" | "approved" | "rejected"
-  reviewedAt              DateTime?
-  reviewNotes             String?  @db.Text
-  createdAt               DateTime @default(now())
-  updatedAt               DateTime @updatedAt
+  membershipType           String
+  researchInterests        String
+  gdprConsent              Boolean   @default(false)
+  feeConsent               Boolean   @default(false)
+  newsletterConsent        Boolean   @default(false)
+  status                   String    @default("pending")
+  reviewedAt               DateTime?
+  reviewNotes              String?
+  createdAt                DateTime  @default(now())
+  updatedAt                DateTime  @updatedAt
 
   @@index([status])
   @@index([createdAt])

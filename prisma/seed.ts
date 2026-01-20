@@ -100,6 +100,7 @@ async function main() {
     create: {
       id: 'sample-project-1',
       title: 'Sample Research Project',
+      slug: 'sample-research-project',
       shortDescription: 'This is a sample research project short description for the card view.',
       detailedDescription: '<p>This is a sample research project detailed description. Replace with actual project details.</p>',
       status: 'ongoing',
@@ -117,6 +118,7 @@ async function main() {
     create: {
       id: 'sample-event-1',
       title: 'Sample Medical Conference',
+      slug: 'sample-medical-conference',
       type: 'conference',
       shortDescription: 'This is a sample event short description for the card view.',
       detailedDescription: '<p>This is a sample event detailed description. Replace with actual event details including committees, program, location, etc.</p>',
@@ -135,6 +137,7 @@ async function main() {
     create: {
       id: 'sample-resource-1',
       title: 'Sample Medical Guide',
+      slug: 'sample-medical-guide',
       description: 'This is a sample resource description. Replace with actual resource details.',
       url: 'https://example.com/guide.pdf',
       type: 'guide',
