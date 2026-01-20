@@ -12,9 +12,9 @@ interface NewsItem {
   projectId: string | null;
   resourceId: string | null;
   publishedAt: string | Date;
-  event?: { id: string; slug: string; title: string } | null;
-  project?: { id: string; slug: string; title: string } | null;
-  resource?: { id: string; slug: string; title: string } | null;
+  event?: { id: string; slug: string | null; title: string } | null;
+  project?: { id: string; slug: string | null; title: string } | null;
+  resource?: { id: string; slug: string | null; title: string } | null;
 }
 
 interface NewsSectionProps {
@@ -24,11 +24,11 @@ interface NewsSectionProps {
 function getNewsLink(newsItem: NewsItem): string {
   switch (newsItem.linkType) {
     case "event":
-      return newsItem.event?.slug ? `/events/${newsItem.event.slug}` : "#";
+      return newsItem.event ? `/events/${newsItem.event.slug || newsItem.event.id}` : "#";
     case "project":
-      return newsItem.project?.slug ? `/projects/${newsItem.project.slug}` : "#";
+      return newsItem.project ? `/projects/${newsItem.project.slug || newsItem.project.id}` : "#";
     case "resource":
-      return newsItem.resource?.slug ? `/resources` : "#";
+      return `/resources`;
     case "external":
       return newsItem.linkUrl || "#";
     case "internal":

@@ -12,8 +12,14 @@ export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const event = await prisma.event.findUnique({
-    where: { slug },
+  // Try to find by slug first, then by id (for legacy entries without slug)
+  const event = await prisma.event.findFirst({
+    where: {
+      OR: [
+        { slug: slug },
+        { id: slug }
+      ]
+    },
   });
 
   if (!event) {
@@ -74,8 +80,14 @@ const formatFileSize = (bytes: number) => {
 
 export default async function EventDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const event = await prisma.event.findUnique({
-    where: { slug },
+  // Try to find by slug first, then by id (for legacy entries without slug)
+  const event = await prisma.event.findFirst({
+    where: {
+      OR: [
+        { slug: slug },
+        { id: slug }
+      ]
+    },
     include: {
       sections: {
         orderBy: { displayOrder: 'asc' },

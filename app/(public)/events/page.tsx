@@ -123,7 +123,7 @@ export default async function EventsPage() {
                 </CardHeader>
                 <CardContent>
                   <Button asChild className="w-full" variant="outline">
-                    <Link href={`/events/${event.slug}`}>
+                    <Link href={`/events/${event.slug || event.id}`}>
                       Detalii Eveniment
                       <ArrowRight className="ml-2 size-4" />
                     </Link>

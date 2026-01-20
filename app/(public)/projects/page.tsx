@@ -93,7 +93,7 @@ export default async function ProjectsPage() {
                 </CardHeader>
                 <CardContent>
                   <Button asChild className="w-full" variant="outline">
-                    <Link href={`/projects/${project.slug}`}>
+                    <Link href={`/projects/${project.slug || project.id}`}>
                       Detalii proiect
                       <ArrowRight className="ml-2 size-4" />
                     </Link>

@@ -11,9 +11,14 @@ export async function GET(
     const { searchParams } = new URL(request.url);
     const fileIndex = searchParams.get('file');
 
-    // Find resource by slug
-    const resource = await prisma.resource.findUnique({
-      where: { slug },
+    // Find resource by slug first, then by id (for legacy entries without slug)
+    const resource = await prisma.resource.findFirst({
+      where: {
+        OR: [
+          { slug: slug },
+          { id: slug }
+        ]
+      },
       include: {
         files: true,
       },

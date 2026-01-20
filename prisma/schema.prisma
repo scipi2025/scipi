@@ -51,7 +51,7 @@ model Partner {
 model Project {
   id                  String    @id @default(cuid())
   title               String
-  slug                String    @unique
+  slug                String?   @unique
   shortDescription    String
   detailedDescription String?
   status              String?
@@ -71,7 +71,7 @@ model Project {
 model Event {
   id                  String              @id @default(cuid())
   title               String
-  slug                String              @unique
+  slug                String?             @unique
   type                String?
   shortDescription    String?
   detailedDescription String?
@@ -138,7 +138,7 @@ model EventRegistration {
 model Resource {
   id          String         @id @default(cuid())
   title       String
-  slug        String         @unique
+  slug        String?        @unique
   description String
   url         String?
   type        String

@@ -88,7 +88,7 @@ export default async function ResourcesPage() {
               <>
                 {resource.files.length === 1 ? (
                   <Button asChild variant={resource.url ? "outline" : "default"} className="w-full">
-                    <a href={`/resources/${resource.slug}/download`} target="_blank" rel="noopener noreferrer">
+                    <a href={`/resources/${resource.slug || resource.id}/download`} target="_blank" rel="noopener noreferrer">
                       Descarcă Fișier
                       <Download className="ml-2 size-4" />
                     </a>
@@ -104,7 +104,7 @@ export default async function ResourcesPage() {
                         size="sm" 
                         className="w-full justify-start"
                       >
-                        <a href={`/resources/${resource.slug}/download?file=${index}`} target="_blank" rel="noopener noreferrer">
+                        <a href={`/resources/${resource.slug || resource.id}/download?file=${index}`} target="_blank" rel="noopener noreferrer">
                           <Download className="mr-2 size-3" />
                           <span className="truncate">{file.fileName}</span>
                         </a>

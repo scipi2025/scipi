@@ -11,8 +11,14 @@ export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const project = await prisma.project.findUnique({
-    where: { slug },
+  // Try to find by slug first, then by id (for legacy entries without slug)
+  const project = await prisma.project.findFirst({
+    where: {
+      OR: [
+        { slug: slug },
+        { id: slug }
+      ]
+    },
   });
 
   if (!project) {
@@ -29,8 +35,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function ProjectDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const project = await prisma.project.findUnique({
-    where: { slug },
+  // Try to find by slug first, then by id (for legacy entries without slug)
+  const project = await prisma.project.findFirst({
+    where: {
+      OR: [
+        { slug: slug },
+        { id: slug }
+      ]
+    },
   });
 
   if (!project) {
