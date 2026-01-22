@@ -62,11 +62,25 @@ export default async function EventsPage() {
       </div>
 
       {/* Introduction */}
-      <Card>
-        <CardContent className="pt-6 space-y-4">
-          <p className="text-lg leading-relaxed">
-            <strong>Societatea pentru Cercetare și Inovare în Patologii Infecțioase</strong> organizează și participă în calitate de partener la diverse evenimente științifice: congrese și conferințe naționale sau internaționale, simpozioane, workshop-uri sau seminarii. Aceste evenimente oferă oportunități de networking, schimb de experiență și diseminare a rezultatelor cercetării în domeniul bolilor infecțioase și a specialităților conexe. Află mai jos care sunt evenimentele noastre și cum poți participa la acestea.
-          </p>
+      <Card className="border-l-4 border-l-primary bg-gradient-to-r from-primary/5 to-transparent">
+        <CardContent className="pt-6 pb-6">
+          <div className="flex gap-4">
+            <div className="hidden sm:flex size-12 items-center justify-center rounded-xl bg-primary/10 shrink-0">
+              <Calendar className="size-6 text-primary" />
+            </div>
+            <div className="space-y-3">
+              <h3 className="text-xl font-semibold text-primary">Evenimente științifice</h3>
+              <p className="text-base leading-relaxed text-muted-foreground">
+                <strong className="text-foreground">Societatea pentru Cercetare și Inovare în Patologii Infecțioase</strong> organizează și participă în calitate de partener la diverse evenimente științifice: congrese și conferințe naționale sau internaționale, simpozioane, workshop-uri sau seminarii.
+              </p>
+              <p className="text-base leading-relaxed text-muted-foreground">
+                Aceste evenimente oferă oportunități de networking, schimb de experiență și diseminare a rezultatelor cercetării în domeniul bolilor infecțioase și a specialităților conexe.
+              </p>
+              <p className="text-base leading-relaxed text-muted-foreground">
+                Află mai jos care sunt evenimentele noastre și cum poți participa la acestea.
+              </p>
+            </div>
+          </div>
         </CardContent>
       </Card>
 

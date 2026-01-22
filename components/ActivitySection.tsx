@@ -31,7 +31,7 @@ function ActivityCard({ title, subtitle, href, icon, color, delay }: ActivityCar
   };
 
   const renderIcon = () => {
-    const baseClass = "w-20 h-20 md:w-24 md:h-24";
+    const baseClass = "w-24 h-24 md:w-28 md:h-28";
     
     switch (icon) {
       case "events":
@@ -129,56 +129,161 @@ function ActivityCard({ title, subtitle, href, icon, color, delay }: ActivityCar
             variants={iconVariants}
             animate={isHovered ? "hover" : "idle"}
           >
-            {/* Microscope base */}
+            {/* Base/Platform */}
             <motion.ellipse
               cx="50"
-              cy="85"
-              rx="30"
-              ry="6"
+              cy="88"
+              rx="35"
+              ry="5"
+              fill={color}
+              opacity="0.7"
+            />
+            <motion.rect
+              x="35"
+              y="83"
+              width="30"
+              height="5"
+              rx="2"
+              fill={color}
+            />
+            
+            {/* Main vertical arm */}
+            <motion.rect
+              x="32"
+              y="30"
+              width="6"
+              height="53"
+              rx="2"
+              fill={color}
+              opacity="0.9"
+            />
+            
+            {/* Stage (sample platform) */}
+            <motion.ellipse
+              cx="50"
+              cy="70"
+              rx="18"
+              ry="3"
               fill={color}
               opacity="0.6"
             />
-            {/* Microscope stand */}
             <motion.rect
-              x="45"
-              y="50"
-              width="10"
-              height="35"
+              x="32"
+              y="68"
+              width="36"
+              height="4"
+              rx="2"
               fill={color}
             />
-            {/* Microscope body */}
+            
+            {/* Stage clips */}
             <motion.rect
-              x="35"
-              y="25"
-              width="30"
-              height="30"
-              rx="5"
-              fill={color}
-              animate={{ 
-                rotateZ: isHovered ? [-2, 2, -2] : 0 
-              }}
-              transition={{ duration: 0.5, repeat: isHovered ? Infinity : 0 }}
-            />
-            {/* Eyepiece */}
-            <motion.rect
-              x="43"
-              y="10"
-              width="14"
-              height="18"
-              rx="7"
+              x="40"
+              y="66"
+              width="3"
+              height="6"
+              rx="1"
               fill="#374151"
             />
-            {/* Lens */}
+            <motion.rect
+              x="57"
+              y="66"
+              width="3"
+              height="6"
+              rx="1"
+              fill="#374151"
+            />
+            
+            {/* Objective lenses (turret) */}
             <motion.circle
-              cx="50"
-              cy="60"
+              cx="38"
+              cy="58"
               r="8"
-              fill="white"
+              fill={color}
+              opacity="0.8"
+            />
+            <motion.circle
+              cx="38"
+              cy="58"
+              r="4"
+              fill="#374151"
               animate={{ 
-                scale: isHovered ? [1, 1.2, 1] : 1,
+                scale: isHovered ? [1, 1.15, 1] : 1,
               }}
               transition={{ duration: 0.6, repeat: isHovered ? Infinity : 0 }}
             />
+            
+            {/* Body tube (angled) */}
+            <motion.rect
+              x="30"
+              y="25"
+              width="12"
+              height="35"
+              rx="3"
+              fill={color}
+              style={{ transformOrigin: "36px 58px" }}
+              animate={{ 
+                rotate: isHovered ? [0, -3, 0] : 0 
+              }}
+              transition={{ duration: 0.8, repeat: isHovered ? Infinity : 0 }}
+            />
+            
+            {/* Eyepiece tube */}
+            <motion.rect
+              x="33"
+              y="12"
+              width="8"
+              height="16"
+              rx="4"
+              fill="#374151"
+            />
+            <motion.ellipse
+              cx="37"
+              cy="12"
+              rx="5"
+              ry="2"
+              fill="#1F2937"
+            />
+            
+            {/* Focus knobs */}
+            <motion.circle
+              cx="44"
+              cy="45"
+              r="4"
+              fill="#374151"
+              animate={{ 
+                rotate: isHovered ? [0, 360] : 0 
+              }}
+              transition={{ duration: 2, repeat: isHovered ? Infinity : 0, ease: "linear" }}
+            />
+            <motion.circle
+              cx="44"
+              cy="45"
+              r="2"
+              fill={color}
+            />
+            
+            {/* Arm connecting to base */}
+            <motion.path
+              d="M 38 83 Q 45 75, 38 58"
+              fill="none"
+              stroke={color}
+              strokeWidth="6"
+              opacity="0.9"
+            />
+            
+            {/* Light source indicator */}
+            <motion.circle
+              cx="50"
+              cy="78"
+              r="3"
+              fill="#FCD34D"
+              animate={{ 
+                opacity: isHovered ? [0.4, 1, 0.4] : 0.6,
+              }}
+              transition={{ duration: 1, repeat: isHovered ? Infinity : 0 }}
+            />
+            
             {/* Light rays on hover */}
             {isHovered && (
               <motion.g
@@ -186,25 +291,25 @@ function ActivityCard({ title, subtitle, href, icon, color, delay }: ActivityCar
                 animate={{ opacity: 1 }}
               >
                 <motion.line
-                  x1="50" y1="70" x2="50" y2="80"
-                  stroke="#FCD34D"
-                  strokeWidth="3"
-                  animate={{ opacity: [0.3, 1, 0.3] }}
-                  transition={{ duration: 0.5, repeat: Infinity }}
-                />
-                <motion.line
-                  x1="42" y1="72" x2="38" y2="80"
+                  x1="50" y1="75" x2="50" y2="68"
                   stroke="#FCD34D"
                   strokeWidth="2"
                   animate={{ opacity: [0.3, 1, 0.3] }}
-                  transition={{ duration: 0.5, repeat: Infinity, delay: 0.1 }}
+                  transition={{ duration: 0.6, repeat: Infinity }}
                 />
                 <motion.line
-                  x1="58" y1="72" x2="62" y2="80"
+                  x1="47" y1="76" x2="44" y2="69"
                   stroke="#FCD34D"
-                  strokeWidth="2"
+                  strokeWidth="1.5"
                   animate={{ opacity: [0.3, 1, 0.3] }}
-                  transition={{ duration: 0.5, repeat: Infinity, delay: 0.2 }}
+                  transition={{ duration: 0.6, repeat: Infinity, delay: 0.1 }}
+                />
+                <motion.line
+                  x1="53" y1="76" x2="56" y2="69"
+                  stroke="#FCD34D"
+                  strokeWidth="1.5"
+                  animate={{ opacity: [0.3, 1, 0.3] }}
+                  transition={{ duration: 0.6, repeat: Infinity, delay: 0.2 }}
                 />
               </motion.g>
             )}
@@ -331,7 +436,7 @@ function ActivityCard({ title, subtitle, href, icon, color, delay }: ActivityCar
         
         {/* Card */}
         <motion.div
-          className="relative bg-card border-2 rounded-3xl p-8 md:p-10 flex flex-col items-center text-center transition-colors"
+          className="relative bg-card border-2 rounded-3xl p-8 md:p-10 flex flex-col items-center text-center transition-colors min-h-[320px] md:min-h-[360px]"
           style={{ borderColor: isHovered ? color : "hsl(var(--border))" }}
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -442,11 +547,11 @@ export function ActivitySection() {
   ];
   
   return (
-    <section className="py-16 md:py-24 bg-linear-to-b from-background to-muted/30 overflow-hidden">
-      <div className="px-4 md:px-6">
+    <section className="py-12 md:py-16 bg-linear-to-b from-background to-muted/30 overflow-hidden">
+      <div className="max-w-6xl mx-auto px-4 md:px-6">
         {/* Section header */}
         <motion.div
-          className="text-center mb-12 md:mb-16"
+          className="text-center mb-10 md:mb-12"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -470,7 +575,7 @@ export function ActivitySection() {
         </motion.div>
 
         {/* Activity cards */}
-        <div className="grid gap-6 md:gap-8 md:grid-cols-3 max-w-7xl mx-auto">
+        <div className="grid gap-6 md:gap-8 md:grid-cols-3">
           {activities.map((activity, index) => (
             <ActivityCard
               key={activity.href}

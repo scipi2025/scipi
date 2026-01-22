@@ -50,8 +50,8 @@ export default async function HomePage() {
   return (
     <div className="flex flex-col ">
       {/* Hero Section */}
-      <section className="relative bg-linear-to-b from-primary/10 to-background py-20 md:py-32 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 relative z-10">
+      <section className="relative bg-linear-to-b from-primary/10 to-background py-16 md:py-24 overflow-hidden">
+        <div className="max-w-6xl mx-auto px-4 md:px-6 relative z-10">
           <div className="flex flex-col items-center text-center space-y-6">
             {/* <Badge variant="outline" className="px-4 py-1 bg-background/80 text-primary font-semibold backdrop-blur-sm">
               Societatea pentru Cercetare și Inovare în Patologii Infecțioase
@@ -86,8 +86,8 @@ export default async function HomePage() {
       </section>
 
       {/* Mission Preview with Image */}
-      <section className="py-16 md:py-24">
-        <div className="max-w-7xl mx-auto px-4 md:px-6">
+      <section className="py-5 md:py-8">
+        <div className="max-w-6xl mx-auto px-4 md:px-6">
           <div className="grid gap-8 lg:grid-cols-2 lg:gap-12 items-center">
             <div className="space-y-4">
               <Badge>Despre noi</Badge>
@@ -126,20 +126,19 @@ export default async function HomePage() {
       {/* {partners.length > 4 && <PartnerCarousel partners={partners} />} */}
 
       {/* CTA Section */}
-      <section className="py-16 md:py-24">
-        <div className=" px-4 md:px-6">
-          <div className="flex flex-col items-center text-center space-y-6 rounded-lg bg-primary/10 p-8 md:p-12">
+      <section className="py-12 md:py-16">
+        <div className="max-w-6xl mx-auto px-4 md:px-6">
+          <div className="flex flex-col items-center text-center space-y-4 rounded-lg bg-primary/10 p-6 md:p-10">
             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
-              Ești interesat de evenimentele SCIPI?
+              Cum devii membru SCIPI?
             </h2>
             <p className="max-w-[700px] text-muted-foreground md:text-lg leading-relaxed">
-              Dacă vrei să organizezi un eveniment în parteneriat cu SCIPI sau
-              ai întrebări legate de un eveniment, te rugăm să ne contactezi.
+              Fii parte din comunitatea SCIPI și contribuie activ la progresul științific în domeniul patologiilor infecțioase. Împreună putem face diferența!
             </p>
            
             <div className="flex flex-col gap-2 min-[400px]:flex-row">
-              <Button size="lg" asChild>
-                <Link href="/events">Vezi evenimentele</Link>
+              <Button size="lg" asChild className="animate-cta-attention">
+                <Link href="/about/members/apply">Completează formularul</Link>
               </Button>
               <Button size="lg" variant="outline" asChild>
                 <Link href="/contact">Contactează-ne</Link>

@@ -45,9 +45,9 @@ export function NewsSection({ news }: NewsSectionProps) {
   if (news.length === 0) return null;
 
   return (
-    <section className="py-16 md:py-24 bg-muted/30">
-      <div className="px-4 md:px-6">
-        <div className="mb-10">
+    <section className="py-12 md:py-16 bg-muted/30">
+      <div className="max-w-6xl mx-auto px-4 md:px-6">
+        <div className="mb-8">
           <Badge className="mb-4">Anunțuri</Badge>
           <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">
             Noutăți
