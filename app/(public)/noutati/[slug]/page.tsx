@@ -91,9 +91,9 @@ export default function NewsDetailPage() {
     return (
       <div className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12 space-y-8">
         <Button variant="ghost" asChild>
-          <Link href="/">
+          <Link href="/noutati">
             <ArrowLeft className="mr-2 size-4" />
-            {language === "ro" ? "Înapoi la Acasă" : "Back to Home"}
+            {language === "ro" ? "Înapoi la Noutăți" : "Back to News"}
           </Link>
         </Button>
         <Card>
@@ -118,9 +118,9 @@ export default function NewsDetailPage() {
     <div className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12 space-y-8">
       {/* Back Button */}
       <Button variant="ghost" asChild>
-        <Link href="/">
+        <Link href="/noutati">
           <ArrowLeft className="mr-2 size-4" />
-          {language === "ro" ? "Înapoi la Acasă" : "Back to Home"}
+          {language === "ro" ? "Înapoi la Noutăți" : "Back to News"}
         </Link>
       </Button>
 

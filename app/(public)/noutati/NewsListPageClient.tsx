@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, ArrowRight, Calendar } from "lucide-react";
+import { ArrowLeft, ArrowRight, Calendar, Sparkles } from "lucide-react";
 import { format } from "date-fns";
 import { ro, enUS } from "date-fns/locale";
 import { useLanguage, getLocalizedContent } from "@/lib/language-context";
@@ -80,13 +80,10 @@ export function NewsListPageClient({ news }: NewsListPageClientProps) {
       {/* Header */}
       <div className="space-y-4">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-            <span className="text-2xl">📢</span>
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-primary/10 shadow-sm">
+            <Sparkles className="size-6 text-primary" />
           </div>
-          <div>
-            <Badge className="mb-2">{language === "en" ? "Announcements" : "Anunțuri"}</Badge>
-            <h1 className="text-3xl md:text-4xl font-bold tracking-tight">{t("nav.news")}</h1>
-          </div>
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight">{t("nav.news")}</h1>
         </div>
         <p className="text-muted-foreground text-lg max-w-2xl">
           {language === "en" 
@@ -179,15 +176,6 @@ export function NewsListPageClient({ news }: NewsListPageClientProps) {
         </Card>
       )}
 
-      {/* Back to home CTA */}
-      <div className="pt-8 text-center">
-        <Button asChild variant="outline" size="lg">
-          <Link href="/">
-            <ArrowLeft className="mr-2 size-4" />
-            {language === "en" ? "Back to home page" : "Înapoi la pagina principală"}
-          </Link>
-        </Button>
-      </div>
     </div>
   );
 }
