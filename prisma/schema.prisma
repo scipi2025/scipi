@@ -51,26 +51,61 @@ model Partner {
 }
 
 model Project {
-  id                    String    @id @default(cuid())
+  id                    String           @id @default(cuid())
   title                 String
-  titleEn               String?   // English translation
-  slug                  String?   @unique
+  titleEn               String?          // English translation
+  slug                  String?          @unique
   shortDescription      String
-  shortDescriptionEn    String?   // English translation
+  shortDescriptionEn    String?          // English translation
   detailedDescription   String?
-  detailedDescriptionEn String?   // English translation
+  detailedDescriptionEn String?          // English translation
+  imageUrl              String?          // Project cover image
   status                String?
   startDate             DateTime?
   endDate               DateTime?
-  displayOrder          Int       @default(0)
-  isActive              Boolean   @default(true)
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
+  displayOrder          Int              @default(0)
+  isActive              Boolean          @default(true)
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
   news                  News[]
+  sections              ProjectSection[]
 
   @@index([status])
   @@index([displayOrder])
   @@map("projects")
+}
+
+model ProjectSection {
+  id              String               @id @default(cuid())
+  projectId       String
+  title           String?              // Optional section title
+  titleEn         String?              // English translation
+  content         String?              // Rich text content
+  contentEn       String?              // English translation
+  backgroundColor String?              // Background color for the section
+  displayOrder    Int                  @default(0)
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  project         Project              @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  files           ProjectSectionFile[]
+
+  @@index([projectId])
+  @@index([displayOrder])
+  @@map("project_sections")
+}
+
+model ProjectSectionFile {
+  id              String          @id @default(cuid())
+  sectionId       String
+  fileName        String
+  fileUrl         String
+  fileSize        Int
+  mimeType        String
+  createdAt       DateTime        @default(now())
+  section         ProjectSection  @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+
+  @@index([sectionId])
+  @@map("project_section_files")
 }
 
 model Event {

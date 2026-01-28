@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Pencil, Trash2, Loader2, Calendar, ArrowUp, ArrowDown, Eye, EyeOff } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, Calendar, ArrowUp, ArrowDown, Eye, EyeOff, Layers } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -34,6 +34,26 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { AdminHeader } from "@/components/admin/admin-header";
 import { RichTextEditor } from "@/components/admin/RichTextEditor";
 import { ImageUpload } from "@/components/admin/ImageUpload";
+import { SectionEditor, Section } from "@/components/admin/SectionEditor";
+
+interface SectionFile {
+  id?: string;
+  fileName: string;
+  fileUrl: string;
+  fileSize: number;
+  mimeType: string;
+}
+
+interface ProjectSectionData {
+  id?: string;
+  title?: string;
+  titleEn?: string;
+  content?: string;
+  contentEn?: string;
+  backgroundColor?: string;
+  displayOrder: number;
+  files?: SectionFile[];
+}
 
 interface Project {
   id: string;
@@ -43,6 +63,7 @@ interface Project {
   shortDescriptionEn?: string | null;
   detailedDescription?: string | null;
   detailedDescriptionEn?: string | null;
+  imageUrl?: string | null;
   status?: string | null;
   startDate?: string | null;
   endDate?: string | null;
@@ -50,6 +71,7 @@ interface Project {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  sections?: ProjectSectionData[];
 }
 
 export default function ProjectsPage() {
@@ -68,10 +90,12 @@ export default function ProjectsPage() {
     shortDescriptionEn: "",
     detailedDescription: "",
     detailedDescriptionEn: "",
+    imageUrl: "",
     status: "ongoing",
     startDate: "",
     endDate: "",
     isActive: true,
+    sections: [] as Section[],
   });
 
   useEffect(() => {
@@ -80,7 +104,7 @@ export default function ProjectsPage() {
 
   const fetchProjects = async () => {
     try {
-      const response = await fetch("/api/projects?includeInactive=true");
+      const response = await fetch("/api/projects?includeInactive=true&includeSections=true");
       if (response.ok) {
         const data = await response.json();
         setProjects(data);
@@ -142,10 +166,12 @@ export default function ProjectsPage() {
       shortDescriptionEn: project.shortDescriptionEn || "",
       detailedDescription: project.detailedDescription || "",
       detailedDescriptionEn: project.detailedDescriptionEn || "",
+      imageUrl: project.imageUrl || "",
       status: project.status || "ongoing",
       startDate: project.startDate ? project.startDate.split("T")[0] : "",
       endDate: project.endDate ? project.endDate.split("T")[0] : "",
       isActive: project.isActive,
+      sections: project.sections || [],
     });
     setDialogOpen(true);
   };
@@ -164,10 +190,12 @@ export default function ProjectsPage() {
       shortDescriptionEn: "",
       detailedDescription: "",
       detailedDescriptionEn: "",
+      imageUrl: "",
       status: "ongoing",
       startDate: "",
       endDate: "",
       isActive: true,
+      sections: [],
     });
   };
 
@@ -188,11 +216,6 @@ export default function ProjectsPage() {
       console.error("Error toggling project visibility:", error);
     }
   };
-
-  const filteredProjects = projects.filter((project) => {
-    if (activeTab === "all") return true;
-    return project.status === activeTab;
-  });
 
   const moveProject = async (projectId: string, direction: "up" | "down") => {
     const currentIndex = projects.findIndex((p) => p.id === projectId);
@@ -222,11 +245,6 @@ export default function ProjectsPage() {
     } catch (error) {
       console.error("Error reordering projects:", error);
     }
-  };
-
-  const formatDate = (date: string | null) => {
-    if (!date) return "-";
-    return new Date(date).toLocaleDateString("ro-RO");
   };
 
   return (
@@ -302,11 +320,19 @@ export default function ProjectsPage() {
                         <div className="text-xs text-muted-foreground truncate">
                           {project.shortDescription ? project.shortDescription.substring(0, 100) + '...' : 'Fără descriere'}
                         </div>
-                        {project.status && (
-                          <Badge className={project.status === "ongoing" ? "bg-blue-500" : "bg-green-600"}>
-                            {project.status === "ongoing" ? "În Curs" : "Finalizat"}
-                          </Badge>
-                        )}
+                        <div className="flex items-center gap-2">
+                          {project.status && (
+                            <Badge className={project.status === "ongoing" ? "bg-blue-500" : "bg-green-600"}>
+                              {project.status === "ongoing" ? "În Curs" : "Finalizat"}
+                            </Badge>
+                          )}
+                          {project.sections && project.sections.length > 0 && (
+                            <Badge variant="outline" className="text-xs">
+                              <Layers className="size-3 mr-1" />
+                              {project.sections.length} secțiuni
+                            </Badge>
+                          )}
+                        </div>
                       </div>
                     </TableCell>
                     <TableCell>
@@ -380,7 +406,7 @@ export default function ProjectsPage() {
               {editingProject ? "Editează Proiect" : "Adaugă Proiect"}
             </DialogTitle>
             <DialogDescription>
-              Completează informațiile proiectului. Folosește editorul pentru descrieri detaliate.
+              Completează informațiile proiectului. Folosește editorul pentru descrieri detaliate și secțiunile pentru conținut structurat.
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit}>
@@ -454,6 +480,17 @@ export default function ProjectsPage() {
               </Tabs>
 
               <div className="grid gap-2">
+                <Label htmlFor="imageUrl">Imagine Proiect</Label>
+                <ImageUpload
+                  currentImageUrl={formData.imageUrl}
+                  onImageUploaded={(url) =>
+                    setFormData({ ...formData, imageUrl: url })
+                  }
+                  type="project"
+                />
+              </div>
+
+              <div className="grid gap-2">
                 <Label htmlFor="status">Status Proiect</Label>
                 <Select
                   value={formData.status}
@@ -497,9 +534,9 @@ export default function ProjectsPage() {
               </div>
 
               <div className="grid gap-2">
-                <Label>Conținut Complet al Proiectului</Label>
+                <Label>Descriere Detaliată (opțional)</Label>
                 <p className="text-sm text-muted-foreground mb-2">
-                  Folosește editorul pentru a adăuga detalii complete: obiective, metodologie, rezultate așteptate, posibilități de colaborare, etc.
+                  Poți folosi acest editor pentru text introductiv, sau folosește secțiunile de mai jos pentru conținut structurat.
                 </p>
                 <Tabs defaultValue="content-ro" className="w-full">
                   <TabsList className="grid w-full grid-cols-2 mb-4">
@@ -516,7 +553,7 @@ export default function ProjectsPage() {
                       onChange={(html) =>
                         setFormData({ ...formData, detailedDescription: html })
                       }
-                      placeholder="Scrie conținutul complet al proiectului..."
+                      placeholder="Text introductiv (opțional)..."
                     />
                   </TabsContent>
                   <TabsContent value="content-en">
@@ -525,13 +562,24 @@ export default function ProjectsPage() {
                       onChange={(html) =>
                         setFormData({ ...formData, detailedDescriptionEn: html })
                       }
-                      placeholder="Write the full content of the project..."
+                      placeholder="Introductory text (optional)..."
                     />
                   </TabsContent>
                 </Tabs>
               </div>
 
-              <div className="flex items-center space-x-2">
+              {/* Project Sections */}
+              <div className="pt-4 border-t">
+                <SectionEditor
+                  sections={formData.sections}
+                  onChange={(sections) => setFormData({ ...formData, sections })}
+                  label="Secțiuni Proiect"
+                  description="Adaugă secțiuni separate pentru a organiza conținutul (Obiective, Metodologie, Echipă, etc.)"
+                  idPrefix="project-section"
+                />
+              </div>
+
+              <div className="flex items-center space-x-2 pt-4 border-t">
                 <Checkbox
                   id="isActive"
                   checked={formData.isActive}

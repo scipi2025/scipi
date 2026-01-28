@@ -3,6 +3,26 @@ import { prisma } from '@/lib/db';
 import { validateSession } from '@/lib/auth';
 import { generateSlug } from '@/lib/utils';
 
+// Types for sections
+interface ProjectSectionFile {
+  id?: string;
+  fileName: string;
+  fileUrl: string;
+  fileSize: number;
+  mimeType: string;
+}
+
+interface ProjectSectionInput {
+  id?: string;
+  title?: string;
+  titleEn?: string;
+  content?: string;
+  contentEn?: string;
+  backgroundColor?: string;
+  displayOrder: number;
+  files?: ProjectSectionFile[];
+}
+
 // Helper function to generate unique slug for projects
 async function generateUniqueProjectSlug(title: string, excludeId?: string): Promise<string> {
   const baseSlug = generateSlug(title);
@@ -28,11 +48,20 @@ async function generateUniqueProjectSlug(title: string, excludeId?: string): Pro
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
+    const includeSections = searchParams.get('includeSections') === 'true';
     const includeInactive = searchParams.get('includeInactive') === 'true';
 
     const projects = await prisma.project.findMany({
       where: includeInactive ? undefined : { isActive: true },
       orderBy: { displayOrder: 'asc' },
+      include: includeSections ? {
+        sections: {
+          orderBy: { displayOrder: 'asc' },
+          include: {
+            files: true,
+          },
+        },
+      } : undefined,
     });
 
     return NextResponse.json(projects);
@@ -60,7 +89,21 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { title, titleEn, shortDescription, shortDescriptionEn, detailedDescription, detailedDescriptionEn, status, startDate, endDate, displayOrder, isActive } = body;
+    const { 
+      title, 
+      titleEn, 
+      shortDescription, 
+      shortDescriptionEn, 
+      detailedDescription, 
+      detailedDescriptionEn, 
+      imageUrl,
+      status, 
+      startDate, 
+      endDate, 
+      displayOrder, 
+      sections,
+      isActive 
+    } = body;
 
     // Validation
     if (!title || !shortDescription) {
@@ -92,11 +135,36 @@ export async function POST(request: NextRequest) {
         shortDescriptionEn: shortDescriptionEn || null,
         detailedDescription: detailedDescription || null,
         detailedDescriptionEn: detailedDescriptionEn || null,
+        imageUrl: imageUrl || null,
         status: status || null,
         startDate: startDate ? new Date(startDate) : null,
         endDate: endDate ? new Date(endDate) : null,
         displayOrder: order,
         isActive: isActive !== undefined ? isActive : true,
+        sections: sections && sections.length > 0 ? {
+          create: sections.map((section: ProjectSectionInput) => ({
+            title: section.title || null,
+            titleEn: section.titleEn || null,
+            content: section.content || null,
+            contentEn: section.contentEn || null,
+            backgroundColor: section.backgroundColor || null,
+            displayOrder: section.displayOrder || 0,
+            files: section.files && section.files.length > 0 ? {
+              create: section.files.map((file: ProjectSectionFile) => ({
+                fileName: file.fileName,
+                fileUrl: file.fileUrl,
+                fileSize: file.fileSize,
+                mimeType: file.mimeType,
+              })),
+            } : undefined,
+          })),
+        } : undefined,
+      },
+      include: {
+        sections: {
+          orderBy: { displayOrder: 'asc' },
+          include: { files: true },
+        },
       },
     });
 
@@ -125,7 +193,22 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { id, title, titleEn, shortDescription, shortDescriptionEn, detailedDescription, detailedDescriptionEn, status, startDate, endDate, displayOrder, isActive } = body;
+    const { 
+      id, 
+      title, 
+      titleEn, 
+      shortDescription, 
+      shortDescriptionEn, 
+      detailedDescription, 
+      detailedDescriptionEn, 
+      imageUrl,
+      status, 
+      startDate, 
+      endDate, 
+      displayOrder, 
+      sections,
+      isActive 
+    } = body;
 
     if (!id) {
       return NextResponse.json({ error: 'Project ID is required' }, { status: 400 });
@@ -135,6 +218,107 @@ export async function PUT(request: NextRequest) {
     let slug: string | undefined;
     if (title) {
       slug = await generateUniqueProjectSlug(title, id);
+    }
+
+    // Handle sections update if provided
+    if (sections !== undefined) {
+      // Get existing sections to determine what to delete
+      const existingSections = await prisma.projectSection.findMany({
+        where: { projectId: id },
+        select: { id: true },
+      });
+
+      const existingSectionIds = existingSections.map(s => s.id);
+      const incomingSectionIds = sections
+        .filter((s: ProjectSectionInput) => s.id)
+        .map((s: ProjectSectionInput) => s.id);
+
+      // Delete sections that are no longer in the list
+      const sectionsToDelete = existingSectionIds.filter(
+        (existingId: string) => !incomingSectionIds.includes(existingId)
+      );
+
+      if (sectionsToDelete.length > 0) {
+        await prisma.projectSection.deleteMany({
+          where: { id: { in: sectionsToDelete } },
+        });
+      }
+
+      // Update or create sections
+      for (const section of sections as ProjectSectionInput[]) {
+        if (section.id) {
+          // Update existing section
+          // First, get existing files
+          const existingFiles = await prisma.projectSectionFile.findMany({
+            where: { sectionId: section.id },
+            select: { id: true },
+          });
+
+          const existingFileIds = existingFiles.map(f => f.id);
+          const incomingFileIds = (section.files || [])
+            .filter((f: ProjectSectionFile) => f.id)
+            .map((f: ProjectSectionFile) => f.id);
+
+          // Delete files that are no longer in the list
+          const filesToDelete = existingFileIds.filter(
+            (existingId: string) => !incomingFileIds.includes(existingId)
+          );
+
+          if (filesToDelete.length > 0) {
+            await prisma.projectSectionFile.deleteMany({
+              where: { id: { in: filesToDelete } },
+            });
+          }
+
+          // Update section
+          await prisma.projectSection.update({
+            where: { id: section.id },
+            data: {
+              title: section.title || null,
+              titleEn: section.titleEn || null,
+              content: section.content || null,
+              contentEn: section.contentEn || null,
+              backgroundColor: section.backgroundColor || null,
+              displayOrder: section.displayOrder || 0,
+            },
+          });
+
+          // Create new files
+          const newFiles = (section.files || []).filter((f: ProjectSectionFile) => !f.id);
+          if (newFiles.length > 0) {
+            await prisma.projectSectionFile.createMany({
+              data: newFiles.map((file: ProjectSectionFile) => ({
+                sectionId: section.id!,
+                fileName: file.fileName,
+                fileUrl: file.fileUrl,
+                fileSize: file.fileSize,
+                mimeType: file.mimeType,
+              })),
+            });
+          }
+        } else {
+          // Create new section
+          await prisma.projectSection.create({
+            data: {
+              projectId: id,
+              title: section.title || null,
+              titleEn: section.titleEn || null,
+              content: section.content || null,
+              contentEn: section.contentEn || null,
+              backgroundColor: section.backgroundColor || null,
+              displayOrder: section.displayOrder || 0,
+              files: section.files && section.files.length > 0 ? {
+                create: section.files.map((file: ProjectSectionFile) => ({
+                  fileName: file.fileName,
+                  fileUrl: file.fileUrl,
+                  fileSize: file.fileSize,
+                  mimeType: file.mimeType,
+                })),
+              } : undefined,
+            },
+          });
+        }
+      }
     }
 
     const project = await prisma.project.update({
@@ -147,11 +331,18 @@ export async function PUT(request: NextRequest) {
         ...(shortDescriptionEn !== undefined && { shortDescriptionEn }),
         ...(detailedDescription !== undefined && { detailedDescription }),
         ...(detailedDescriptionEn !== undefined && { detailedDescriptionEn }),
+        ...(imageUrl !== undefined && { imageUrl }),
         ...(status !== undefined && { status }),
         ...(startDate !== undefined && { startDate: startDate ? new Date(startDate) : null }),
         ...(endDate !== undefined && { endDate: endDate ? new Date(endDate) : null }),
         ...(displayOrder !== undefined && { displayOrder }),
         ...(isActive !== undefined && { isActive }),
+      },
+      include: {
+        sections: {
+          orderBy: { displayOrder: 'asc' },
+          include: { files: true },
+        },
       },
     });
 
@@ -199,4 +390,3 @@ export async function DELETE(request: NextRequest) {
     );
   }
 }
-
