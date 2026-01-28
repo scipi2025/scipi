@@ -18,6 +18,7 @@ async function getAllNews() {
       id: true,
       title: true,
       titleEn: true,
+      slug: true,
       excerpt: true,
       excerptEn: true,
       linkType: true,
