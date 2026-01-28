@@ -38,8 +38,11 @@ import { ImageUpload } from "@/components/admin/ImageUpload";
 interface Project {
   id: string;
   title: string;
+  titleEn?: string | null;
   shortDescription: string;
+  shortDescriptionEn?: string | null;
   detailedDescription?: string | null;
+  detailedDescriptionEn?: string | null;
   status?: string | null;
   startDate?: string | null;
   endDate?: string | null;
@@ -60,8 +63,11 @@ export default function ProjectsPage() {
 
   const [formData, setFormData] = useState({
     title: "",
+    titleEn: "",
     shortDescription: "",
+    shortDescriptionEn: "",
     detailedDescription: "",
+    detailedDescriptionEn: "",
     status: "ongoing",
     startDate: "",
     endDate: "",
@@ -131,8 +137,11 @@ export default function ProjectsPage() {
     setEditingProject(project);
     setFormData({
       title: project.title,
+      titleEn: project.titleEn || "",
       shortDescription: project.shortDescription || "",
+      shortDescriptionEn: project.shortDescriptionEn || "",
       detailedDescription: project.detailedDescription || "",
+      detailedDescriptionEn: project.detailedDescriptionEn || "",
       status: project.status || "ongoing",
       startDate: project.startDate ? project.startDate.split("T")[0] : "",
       endDate: project.endDate ? project.endDate.split("T")[0] : "",
@@ -150,8 +159,11 @@ export default function ProjectsPage() {
     setEditingProject(null);
     setFormData({
       title: "",
+      titleEn: "",
       shortDescription: "",
+      shortDescriptionEn: "",
       detailedDescription: "",
+      detailedDescriptionEn: "",
       status: "ongoing",
       startDate: "",
       endDate: "",
@@ -373,32 +385,73 @@ export default function ProjectsPage() {
           </DialogHeader>
           <form onSubmit={handleSubmit}>
             <div className="grid gap-6 py-4">
-              <div className="grid gap-2">
-                <Label htmlFor="title">Titlu Proiect *</Label>
-                <Input
-                  id="title"
-                  value={formData.title}
-                  onChange={(e) =>
-                    setFormData({ ...formData, title: e.target.value })
-                  }
-                  placeholder="Ex: Studiu privind rezistența antimicrobiană..."
-                  required
-                />
-              </div>
+              {/* Language Tabs for Title and Short Description */}
+              <Tabs defaultValue="ro" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 mb-4">
+                  <TabsTrigger value="ro" className="flex items-center gap-2">
+                    <span>🇷🇴</span> Română
+                  </TabsTrigger>
+                  <TabsTrigger value="en" className="flex items-center gap-2">
+                    <span>🇬🇧</span> English
+                  </TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="ro" className="space-y-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="title">Titlu Proiect *</Label>
+                    <Input
+                      id="title"
+                      value={formData.title}
+                      onChange={(e) =>
+                        setFormData({ ...formData, title: e.target.value })
+                      }
+                      placeholder="Ex: Studiu privind rezistența antimicrobiană..."
+                      required
+                    />
+                  </div>
 
-              <div className="grid gap-2">
-                <Label htmlFor="shortDescription">Descriere Scurtă *</Label>
-                <Textarea
-                  id="shortDescription"
-                  value={formData.shortDescription}
-                  onChange={(e) =>
-                    setFormData({ ...formData, shortDescription: e.target.value })
-                  }
-                  rows={3}
-                  placeholder="Descriere scurtă care va apărea pe card-ul proiectului (2-3 propoziții)..."
-                  required
-                />
-              </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="shortDescription">Descriere Scurtă *</Label>
+                    <Textarea
+                      id="shortDescription"
+                      value={formData.shortDescription}
+                      onChange={(e) =>
+                        setFormData({ ...formData, shortDescription: e.target.value })
+                      }
+                      rows={3}
+                      placeholder="Descriere scurtă care va apărea pe card-ul proiectului (2-3 propoziții)..."
+                      required
+                    />
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="en" className="space-y-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="titleEn">Project Title (English)</Label>
+                    <Input
+                      id="titleEn"
+                      value={formData.titleEn}
+                      onChange={(e) =>
+                        setFormData({ ...formData, titleEn: e.target.value })
+                      }
+                      placeholder="Ex: Antimicrobial Resistance Study..."
+                    />
+                  </div>
+
+                  <div className="grid gap-2">
+                    <Label htmlFor="shortDescriptionEn">Short Description (English)</Label>
+                    <Textarea
+                      id="shortDescriptionEn"
+                      value={formData.shortDescriptionEn}
+                      onChange={(e) =>
+                        setFormData({ ...formData, shortDescriptionEn: e.target.value })
+                      }
+                      rows={3}
+                      placeholder="Short description that will appear on the project card (2-3 sentences)..."
+                    />
+                  </div>
+                </TabsContent>
+              </Tabs>
 
               <div className="grid gap-2">
                 <Label htmlFor="status">Status Proiect</Label>
@@ -448,13 +501,34 @@ export default function ProjectsPage() {
                 <p className="text-sm text-muted-foreground mb-2">
                   Folosește editorul pentru a adăuga detalii complete: obiective, metodologie, rezultate așteptate, posibilități de colaborare, etc.
                 </p>
-                <RichTextEditor
-                  content={formData.detailedDescription}
-                  onChange={(html) =>
-                    setFormData({ ...formData, detailedDescription: html })
-                  }
-                  placeholder="Scrie conținutul complet al proiectului..."
-                />
+                <Tabs defaultValue="content-ro" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2 mb-4">
+                    <TabsTrigger value="content-ro" className="flex items-center gap-2">
+                      <span>🇷🇴</span> Conținut RO
+                    </TabsTrigger>
+                    <TabsTrigger value="content-en" className="flex items-center gap-2">
+                      <span>🇬🇧</span> Content EN
+                    </TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="content-ro">
+                    <RichTextEditor
+                      content={formData.detailedDescription}
+                      onChange={(html) =>
+                        setFormData({ ...formData, detailedDescription: html })
+                      }
+                      placeholder="Scrie conținutul complet al proiectului..."
+                    />
+                  </TabsContent>
+                  <TabsContent value="content-en">
+                    <RichTextEditor
+                      content={formData.detailedDescriptionEn}
+                      onChange={(html) =>
+                        setFormData({ ...formData, detailedDescriptionEn: html })
+                      }
+                      placeholder="Write the full content of the project..."
+                    />
+                  </TabsContent>
+                </Tabs>
               </div>
 
               <div className="flex items-center space-x-2">

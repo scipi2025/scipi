@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { Lightbulb } from "lucide-react";
+import { useLanguage } from "@/lib/language-context";
 
 interface ActivityCardProps {
   title: string;
@@ -11,9 +13,10 @@ interface ActivityCardProps {
   icon: "events" | "projects" | "resources";
   color: string;
   delay: number;
+  exploreText: string;
 }
 
-function ActivityCard({ title, subtitle, href, icon, color, delay }: ActivityCardProps) {
+function ActivityCard({ title, subtitle, href, icon, color, delay, exploreText }: ActivityCardProps) {
   const [isHovered, setIsHovered] = useState(false);
 
   const iconVariants = {
@@ -129,187 +132,100 @@ function ActivityCard({ title, subtitle, href, icon, color, delay }: ActivityCar
             variants={iconVariants}
             animate={isHovered ? "hover" : "idle"}
           >
-            {/* Base/Platform */}
-            <motion.ellipse
-              cx="50"
-              cy="88"
-              rx="35"
-              ry="5"
-              fill={color}
-              opacity="0.7"
-            />
-            <motion.rect
-              x="35"
-              y="83"
-              width="30"
-              height="5"
-              rx="2"
-              fill={color}
-            />
+            {/* Gears/Cogs icon - Projects - Similar to reference image */}
             
-            {/* Main vertical arm */}
-            <motion.rect
-              x="32"
-              y="30"
-              width="6"
-              height="53"
-              rx="2"
-              fill={color}
-              opacity="0.9"
-            />
-            
-            {/* Stage (sample platform) */}
-            <motion.ellipse
-              cx="50"
-              cy="70"
-              rx="18"
-              ry="3"
-              fill={color}
-              opacity="0.6"
-            />
-            <motion.rect
-              x="32"
-              y="68"
-              width="36"
-              height="4"
-              rx="2"
-              fill={color}
-            />
-            
-            {/* Stage clips */}
-            <motion.rect
-              x="40"
-              y="66"
-              width="3"
-              height="6"
-              rx="1"
-              fill="#374151"
-            />
-            <motion.rect
-              x="57"
-              y="66"
-              width="3"
-              height="6"
-              rx="1"
-              fill="#374151"
-            />
-            
-            {/* Objective lenses (turret) */}
-            <motion.circle
-              cx="38"
-              cy="58"
-              r="8"
-              fill={color}
-              opacity="0.8"
-            />
-            <motion.circle
-              cx="38"
-              cy="58"
-              r="4"
-              fill="#374151"
-              animate={{ 
-                scale: isHovered ? [1, 1.15, 1] : 1,
-              }}
-              transition={{ duration: 0.6, repeat: isHovered ? Infinity : 0 }}
-            />
-            
-            {/* Body tube (angled) */}
-            <motion.rect
-              x="30"
-              y="25"
-              width="12"
-              height="35"
-              rx="3"
-              fill={color}
-              style={{ transformOrigin: "36px 58px" }}
-              animate={{ 
-                rotate: isHovered ? [0, -3, 0] : 0 
-              }}
-              transition={{ duration: 0.8, repeat: isHovered ? Infinity : 0 }}
-            />
-            
-            {/* Eyepiece tube */}
-            <motion.rect
-              x="33"
-              y="12"
-              width="8"
-              height="16"
-              rx="4"
-              fill="#374151"
-            />
-            <motion.ellipse
-              cx="37"
-              cy="12"
-              rx="5"
-              ry="2"
-              fill="#1F2937"
-            />
-            
-            {/* Focus knobs */}
-            <motion.circle
-              cx="44"
-              cy="45"
-              r="4"
-              fill="#374151"
-              animate={{ 
-                rotate: isHovered ? [0, 360] : 0 
-              }}
-              transition={{ duration: 2, repeat: isHovered ? Infinity : 0, ease: "linear" }}
-            />
-            <motion.circle
-              cx="44"
-              cy="45"
-              r="2"
-              fill={color}
-            />
-            
-            {/* Arm connecting to base */}
-            <motion.path
-              d="M 38 83 Q 45 75, 38 58"
-              fill="none"
-              stroke={color}
-              strokeWidth="6"
-              opacity="0.9"
-            />
-            
-            {/* Light source indicator */}
-            <motion.circle
-              cx="50"
-              cy="78"
-              r="3"
-              fill="#FCD34D"
-              animate={{ 
-                opacity: isHovered ? [0.4, 1, 0.4] : 0.6,
-              }}
-              transition={{ duration: 1, repeat: isHovered ? Infinity : 0 }}
-            />
-            
-            {/* Light rays on hover */}
+            {/* Large gear - top right */}
+            <motion.g
+              animate={{ rotate: isHovered ? 360 : 0 }}
+              transition={{ duration: 4, repeat: isHovered ? Infinity : 0, ease: "linear" }}
+              style={{ transformOrigin: "58px 38px" }}
+            >
+              {/* Outer ring */}
+              <circle cx="58" cy="38" r="22" fill={color} stroke={color} strokeWidth="2" />
+              {/* Inner hole */}
+              <circle cx="58" cy="38" r="10" fill="#374151" />
+              {/* Inner ring detail */}
+              <circle cx="58" cy="38" r="14" fill="none" stroke="#374151" strokeWidth="2" opacity="0.3" />
+              {/* Gear teeth - trapezoid style */}
+              {[0, 40, 80, 120, 160, 200, 240, 280, 320].map((angle) => (
+                <path
+                  key={angle}
+                  d="M-5,-3 L5,-3 L4,3 L-4,3 Z"
+                  fill={color}
+                  transform={`translate(58, 38) rotate(${angle}) translate(0, -25)`}
+                />
+              ))}
+            </motion.g>
+
+            {/* Medium gear - left */}
+            <motion.g
+              animate={{ rotate: isHovered ? -360 : 0 }}
+              transition={{ duration: 3, repeat: isHovered ? Infinity : 0, ease: "linear" }}
+              style={{ transformOrigin: "30px 55px" }}
+            >
+              {/* Outer ring */}
+              <circle cx="30" cy="55" r="18" fill={color} opacity="0.85" />
+              {/* Inner hole */}
+              <circle cx="30" cy="55" r="8" fill="#374151" />
+              {/* Inner ring detail */}
+              <circle cx="30" cy="55" r="11" fill="none" stroke="#374151" strokeWidth="2" opacity="0.3" />
+              {/* Gear teeth */}
+              {[0, 45, 90, 135, 180, 225, 270, 315].map((angle) => (
+                <path
+                  key={angle}
+                  d="M-4,-2.5 L4,-2.5 L3,2.5 L-3,2.5 Z"
+                  fill={color}
+                  opacity="0.85"
+                  transform={`translate(30, 55) rotate(${angle}) translate(0, -20)`}
+                />
+              ))}
+            </motion.g>
+
+            {/* Small gear - bottom */}
+            <motion.g
+              animate={{ rotate: isHovered ? 360 : 0 }}
+              transition={{ duration: 2.5, repeat: isHovered ? Infinity : 0, ease: "linear" }}
+              style={{ transformOrigin: "55px 78px" }}
+            >
+              {/* Outer ring */}
+              <circle cx="55" cy="78" r="12" fill={color} opacity="0.75" />
+              {/* Inner hole */}
+              <circle cx="55" cy="78" r="5" fill="#374151" />
+              {/* Inner ring detail */}
+              <circle cx="55" cy="78" r="7" fill="none" stroke="#374151" strokeWidth="1.5" opacity="0.3" />
+              {/* Gear teeth */}
+              {[0, 60, 120, 180, 240, 300].map((angle) => (
+                <path
+                  key={angle}
+                  d="M-3,-2 L3,-2 L2,2 L-2,2 Z"
+                  fill={color}
+                  opacity="0.75"
+                  transform={`translate(55, 78) rotate(${angle}) translate(0, -14)`}
+                />
+              ))}
+            </motion.g>
+
+            {/* Sparkles on hover */}
             {isHovered && (
               <motion.g
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
               >
-                <motion.line
-                  x1="50" y1="75" x2="50" y2="68"
-                  stroke="#FCD34D"
-                  strokeWidth="2"
-                  animate={{ opacity: [0.3, 1, 0.3] }}
-                  transition={{ duration: 0.6, repeat: Infinity }}
+                <motion.circle
+                  cx="88"
+                  cy="18"
+                  r="3"
+                  fill="#FCD34D"
+                  animate={{ scale: [1, 1.5, 1], opacity: [1, 0.5, 1] }}
+                  transition={{ duration: 0.8, repeat: Infinity }}
                 />
-                <motion.line
-                  x1="47" y1="76" x2="44" y2="69"
-                  stroke="#FCD34D"
-                  strokeWidth="1.5"
-                  animate={{ opacity: [0.3, 1, 0.3] }}
-                  transition={{ duration: 0.6, repeat: Infinity, delay: 0.1 }}
-                />
-                <motion.line
-                  x1="53" y1="76" x2="56" y2="69"
-                  stroke="#FCD34D"
-                  strokeWidth="1.5"
-                  animate={{ opacity: [0.3, 1, 0.3] }}
-                  transition={{ duration: 0.6, repeat: Infinity, delay: 0.2 }}
+                <motion.circle
+                  cx="8"
+                  cy="70"
+                  r="2.5"
+                  fill="#FCD34D"
+                  animate={{ scale: [1, 1.3, 1], opacity: [0.8, 0.4, 0.8] }}
+                  transition={{ duration: 1, repeat: Infinity, delay: 0.2 }}
                 />
               </motion.g>
             )}
@@ -436,8 +352,8 @@ function ActivityCard({ title, subtitle, href, icon, color, delay }: ActivityCar
         
         {/* Card */}
         <motion.div
-          className="relative bg-card border-2 rounded-3xl p-8 md:p-10 flex flex-col items-center text-center transition-colors min-h-[320px] md:min-h-[360px]"
-          style={{ borderColor: isHovered ? color : "hsl(var(--border))" }}
+          className="relative bg-card border-2 border-border rounded-3xl p-8 md:p-10 flex flex-col items-center text-center transition-colors min-h-[320px] md:min-h-[360px]"
+          style={{ borderColor: isHovered ? color : undefined }}
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: delay }}
@@ -476,13 +392,12 @@ function ActivityCard({ title, subtitle, href, icon, color, delay }: ActivityCar
           </div>
 
           {/* Title */}
-          <motion.h3
-            className="text-xl md:text-2xl font-bold mb-2"
-            animate={{ color: isHovered ? color : "hsl(var(--foreground))" }}
-            transition={{ duration: 0.3 }}
+          <h3
+            className="text-xl md:text-2xl font-bold mb-2 transition-colors duration-300"
+            style={{ color: isHovered ? color : undefined }}
           >
             {title}
-          </motion.h3>
+          </h3>
 
           {/* Subtitle */}
           <p className="text-muted-foreground text-sm md:text-base">
@@ -497,7 +412,7 @@ function ActivityCard({ title, subtitle, href, icon, color, delay }: ActivityCar
             animate={{ opacity: isHovered ? 1 : 0 }}
             transition={{ duration: 0.2 }}
           >
-            <span>Explorează</span>
+            <span>{exploreText}</span>
             <motion.svg
               width="20"
               height="20"
@@ -522,55 +437,64 @@ function ActivityCard({ title, subtitle, href, icon, color, delay }: ActivityCar
 }
 
 export function ActivitySection() {
+  const { t } = useLanguage();
+  
   const activities = [
     {
-      title: "Evenimente",
-      subtitle: "Conferințe, workshop-uri și întâlniri profesionale",
+      title: t("activity.events"),
+      subtitle: t("activity.events.desc"),
       href: "/events",
       icon: "events" as const,
       color: "#3B82F6", // Blue
     },
     {
-      title: "Proiecte de cercetare",
-      subtitle: "Cercetare clinică și studii inovatoare",
+      title: t("activity.projects"),
+      subtitle: t("activity.projects.desc"),
       href: "/projects",
       icon: "projects" as const,
       color: "#10B981", // Green
     },
     {
-      title: "Resurse educaționale",
-      subtitle: "Ghiduri, articole și materiale de studiu",
+      title: t("activity.resources"),
+      subtitle: t("activity.resources.desc"),
       href: "/resources",
       icon: "resources" as const,
       color: "#8B5CF6", // Purple
     },
   ];
+
+  const exploreText = t("activity.explore");
+  const sectionTitle = t("home.activity.title");
+  const sectionSubtitle = t("home.activity.subtitle");
   
   return (
     <section className="py-12 md:py-16 bg-linear-to-b from-background to-muted/30 overflow-hidden">
       <div className="max-w-6xl mx-auto px-4 md:px-6">
         {/* Section header */}
         <motion.div
-          className="text-center mb-10 md:mb-12"
+          className="flex flex-col items-center text-center mb-10 md:mb-12"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
         >
-          <motion.span
-            className="inline-block px-4 py-1.5 rounded-full text-sm font-medium bg-primary/10 text-primary mb-4"
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.3, delay: 0.1 }}
-          >
-            Descoperă
-          </motion.span>
-          <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl mb-4">
-            Activitatea noastră
-          </h2>
+          {/* Header with icon - inline on small, stacked on large */}
+          <div className="flex items-center gap-4 md:flex-col md:gap-0">
+            <motion.div 
+              className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-primary/10 shadow-sm md:mb-6"
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.3, delay: 0.1 }}
+            >
+              <Lightbulb className="size-6 md:size-7 text-primary" />
+            </motion.div>
+            <h2 className="text-2xl md:text-3xl font-bold tracking-tighter sm:text-4xl lg:text-5xl mb-0 md:mb-4">
+              {sectionTitle}
+            </h2>
+          </div>
           <p className="text-muted-foreground max-w-[600px] mx-auto md:text-lg">
-            Explorează evenimentele, proiectele și resursele comunității SCIPI
+            {sectionSubtitle}
           </p>
         </motion.div>
 
@@ -580,6 +504,7 @@ export function ActivitySection() {
             <ActivityCard
               key={activity.href}
               {...activity}
+              exploreText={exploreText}
               delay={0.2 + index * 0.1}
             />
           ))}

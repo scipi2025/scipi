@@ -15,6 +15,7 @@ import { Plus, Pencil, Trash2, Calendar, Layers, Eye, EyeOff } from "lucide-reac
 import { RichTextEditor } from "@/components/admin/RichTextEditor";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import { EventSectionEditor, EventSection } from "@/components/admin/EventSectionEditor";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface SectionFile {
   id?: string;
@@ -27,7 +28,9 @@ interface SectionFile {
 interface EventSectionData {
   id?: string;
   title?: string;
+  titleEn?: string;
   content?: string;
+  contentEn?: string;
   backgroundColor?: string;
   displayOrder: number;
   files?: SectionFile[];
@@ -36,13 +39,18 @@ interface EventSectionData {
 interface Event {
   id: string;
   title: string;
+  titleEn?: string | null;
   type: string | null;
   shortDescription: string | null;
+  shortDescriptionEn?: string | null;
   detailedDescription?: string | null;
+  detailedDescriptionEn?: string | null;
   imageUrl?: string | null;
   eventDate?: string | null;
   dateText?: string | null;
+  dateTextEn?: string | null;
   location?: string | null;
+  locationEn?: string | null;
   displayOrder: number;
   isActive: boolean;
   createdAt: string;
@@ -59,13 +67,18 @@ export default function AdminEventsPage() {
   const [deletingEventId, setDeletingEventId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     title: "",
+    titleEn: "",
     type: "conference",
     shortDescription: "",
+    shortDescriptionEn: "",
     detailedDescription: "",
+    detailedDescriptionEn: "",
     imageUrl: "",
     eventDate: "",
     dateText: "",
+    dateTextEn: "",
     location: "",
+    locationEn: "",
     displayOrder: 0,
     isActive: true,
     sections: [] as EventSection[],
@@ -134,13 +147,18 @@ export default function AdminEventsPage() {
     setEditingEvent(event);
     setFormData({
       title: event.title,
+      titleEn: event.titleEn || "",
       type: event.type || "conference",
       shortDescription: event.shortDescription || "",
+      shortDescriptionEn: event.shortDescriptionEn || "",
       detailedDescription: event.detailedDescription || "",
+      detailedDescriptionEn: event.detailedDescriptionEn || "",
       imageUrl: event.imageUrl || "",
       eventDate: event.eventDate ? event.eventDate.split("T")[0] : "",
       dateText: event.dateText || "",
+      dateTextEn: event.dateTextEn || "",
       location: event.location || "",
+      locationEn: event.locationEn || "",
       displayOrder: event.displayOrder || 0,
       isActive: event.isActive,
       sections: event.sections || [],
@@ -157,13 +175,18 @@ export default function AdminEventsPage() {
     setEditingEvent(null);
     setFormData({
       title: "",
+      titleEn: "",
       type: "conference",
       shortDescription: "",
+      shortDescriptionEn: "",
       detailedDescription: "",
+      detailedDescriptionEn: "",
       imageUrl: "",
       eventDate: "",
       dateText: "",
+      dateTextEn: "",
       location: "",
+      locationEn: "",
       displayOrder: 0,
       isActive: true,
       sections: [],
@@ -354,18 +377,46 @@ export default function AdminEventsPage() {
           </DialogHeader>
           <form onSubmit={handleSubmit} className="">
             <div className="grid gap-6 py-4">
-              <div className="grid gap-2">
-                <Label htmlFor="title">Titlu Eveniment *</Label>
-                <Input
-                  id="title"
-                  value={formData.title}
-                  onChange={(e) =>
-                    setFormData({ ...formData, title: e.target.value })
-                  }
-                  placeholder="Ex: Conferința Națională SCIPI 2025"
-                  required
-                />
-              </div>
+              {/* Language Tabs for Title */}
+              <Tabs defaultValue="ro" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 mb-4">
+                  <TabsTrigger value="ro" className="flex items-center gap-2">
+                    <span>🇷🇴</span> Română
+                  </TabsTrigger>
+                  <TabsTrigger value="en" className="flex items-center gap-2">
+                    <span>🇬🇧</span> English
+                  </TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="ro" className="space-y-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="title">Titlu Eveniment *</Label>
+                    <Input
+                      id="title"
+                      value={formData.title}
+                      onChange={(e) =>
+                        setFormData({ ...formData, title: e.target.value })
+                      }
+                      placeholder="Ex: Conferința Națională SCIPI 2025"
+                      required
+                    />
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="en" className="space-y-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="titleEn">Event Title (English)</Label>
+                    <Input
+                      id="titleEn"
+                      value={formData.titleEn}
+                      onChange={(e) =>
+                        setFormData({ ...formData, titleEn: e.target.value })
+                      }
+                      placeholder="Ex: SCIPI National Conference 2025"
+                    />
+                  </div>
+                </TabsContent>
+              </Tabs>
 
               <div className="grid gap-2">
                 <Label htmlFor="type">Tip Eveniment *</Label>
@@ -431,9 +482,10 @@ export default function AdminEventsPage() {
                 </div>
               </div>
 
+              {/* Location with Language options */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="location">Locație (opțional)</Label>
+                  <Label htmlFor="location">Locație RO (opțional)</Label>
                   <Input
                     id="location"
                     value={formData.location}
@@ -442,6 +494,35 @@ export default function AdminEventsPage() {
                     }
                     placeholder="Ex: București, România"
                   />
+                </div>
+
+                <div className="grid gap-2">
+                  <Label htmlFor="locationEn">Location EN (optional)</Label>
+                  <Input
+                    id="locationEn"
+                    value={formData.locationEn}
+                    onChange={(e) =>
+                      setFormData({ ...formData, locationEn: e.target.value })
+                    }
+                    placeholder="Ex: Bucharest, Romania"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="dateTextEn">Date Text EN (optional)</Label>
+                  <Input
+                    id="dateTextEn"
+                    value={formData.dateTextEn}
+                    onChange={(e) =>
+                      setFormData({ ...formData, dateTextEn: e.target.value })
+                    }
+                    placeholder="Ex: June - August 2025"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    English version of date range text
+                  </p>
                 </div>
 
                 <div className="grid gap-2">
@@ -461,32 +542,82 @@ export default function AdminEventsPage() {
                 </div>
               </div>
 
-              <div className="grid gap-2">
-                <Label htmlFor="shortDescription">Descriere Scurtă *</Label>
-                <Textarea
-                  id="shortDescription"
-                  value={formData.shortDescription}
-                  onChange={(e) =>
-                    setFormData({ ...formData, shortDescription: e.target.value })
-                  }
-                  rows={3}
-                  placeholder="Descriere scurtă care va apărea pe card-ul evenimentului (2-3 propoziții)..."
-                  required
-                />
-              </div>
+              {/* Short Description with Language Tabs */}
+              <Tabs defaultValue="desc-ro" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 mb-4">
+                  <TabsTrigger value="desc-ro" className="flex items-center gap-2">
+                    <span>🇷🇴</span> Descriere RO
+                  </TabsTrigger>
+                  <TabsTrigger value="desc-en" className="flex items-center gap-2">
+                    <span>🇬🇧</span> Description EN
+                  </TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="desc-ro">
+                  <div className="grid gap-2">
+                    <Label htmlFor="shortDescription">Descriere Scurtă *</Label>
+                    <Textarea
+                      id="shortDescription"
+                      value={formData.shortDescription}
+                      onChange={(e) =>
+                        setFormData({ ...formData, shortDescription: e.target.value })
+                      }
+                      rows={3}
+                      placeholder="Descriere scurtă care va apărea pe card-ul evenimentului (2-3 propoziții)..."
+                      required
+                    />
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="desc-en">
+                  <div className="grid gap-2">
+                    <Label htmlFor="shortDescriptionEn">Short Description (English)</Label>
+                    <Textarea
+                      id="shortDescriptionEn"
+                      value={formData.shortDescriptionEn}
+                      onChange={(e) =>
+                        setFormData({ ...formData, shortDescriptionEn: e.target.value })
+                      }
+                      rows={3}
+                      placeholder="Short description that will appear on the event card (2-3 sentences)..."
+                    />
+                  </div>
+                </TabsContent>
+              </Tabs>
 
               <div className="grid gap-2">
                 <Label>Detalii Complete ale Evenimentului (opțional)</Label>
                 <p className="text-sm text-muted-foreground mb-2">
                   Poți folosi acest editor pentru text introductiv, sau folosește secțiunile de mai jos pentru conținut structurat.
                 </p>
-                <RichTextEditor
-                  content={formData.detailedDescription}
-                  onChange={(html) =>
-                    setFormData({ ...formData, detailedDescription: html })
-                  }
-                  placeholder="Text introductiv (opțional)..."
-                />
+                <Tabs defaultValue="detail-ro" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2 mb-4">
+                    <TabsTrigger value="detail-ro" className="flex items-center gap-2">
+                      <span>🇷🇴</span> Detalii RO
+                    </TabsTrigger>
+                    <TabsTrigger value="detail-en" className="flex items-center gap-2">
+                      <span>🇬🇧</span> Details EN
+                    </TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="detail-ro">
+                    <RichTextEditor
+                      content={formData.detailedDescription}
+                      onChange={(html) =>
+                        setFormData({ ...formData, detailedDescription: html })
+                      }
+                      placeholder="Text introductiv (opțional)..."
+                    />
+                  </TabsContent>
+                  <TabsContent value="detail-en">
+                    <RichTextEditor
+                      content={formData.detailedDescriptionEn}
+                      onChange={(html) =>
+                        setFormData({ ...formData, detailedDescriptionEn: html })
+                      }
+                      placeholder="Introductory text (optional)..."
+                    />
+                  </TabsContent>
+                </Tabs>
               </div>
 
               {/* Event Sections */}

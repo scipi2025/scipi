@@ -1,13 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,9 +14,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft, Send, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
+import { useLanguage } from "@/lib/language-context";
 
 export default function MembershipApplicationPage() {
-  const router = useRouter();
+  const { t, language } = useLanguage();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState("");
@@ -27,6 +26,7 @@ export default function MembershipApplicationPage() {
     firstName: "",
     lastName: "",
     email: "",
+    country: "",
     professionalGrade: "",
     otherProfessionalGrade: "",
     medicalSpecialty: "",
@@ -38,6 +38,221 @@ export default function MembershipApplicationPage() {
     feeConsent: false,
     newsletterConsent: false,
   });
+
+  // Lista completă de țări
+  const countries = [
+    { code: "AF", nameRo: "Afganistan", nameEn: "Afghanistan" },
+    { code: "AL", nameRo: "Albania", nameEn: "Albania" },
+    { code: "DZ", nameRo: "Algeria", nameEn: "Algeria" },
+    { code: "AD", nameRo: "Andorra", nameEn: "Andorra" },
+    { code: "AO", nameRo: "Angola", nameEn: "Angola" },
+    { code: "AG", nameRo: "Antigua și Barbuda", nameEn: "Antigua and Barbuda" },
+    { code: "AR", nameRo: "Argentina", nameEn: "Argentina" },
+    { code: "AM", nameRo: "Armenia", nameEn: "Armenia" },
+    { code: "AU", nameRo: "Australia", nameEn: "Australia" },
+    { code: "AT", nameRo: "Austria", nameEn: "Austria" },
+    { code: "AZ", nameRo: "Azerbaidjan", nameEn: "Azerbaijan" },
+    { code: "BS", nameRo: "Bahamas", nameEn: "Bahamas" },
+    { code: "BH", nameRo: "Bahrain", nameEn: "Bahrain" },
+    { code: "BD", nameRo: "Bangladesh", nameEn: "Bangladesh" },
+    { code: "BB", nameRo: "Barbados", nameEn: "Barbados" },
+    { code: "BY", nameRo: "Belarus", nameEn: "Belarus" },
+    { code: "BE", nameRo: "Belgia", nameEn: "Belgium" },
+    { code: "BZ", nameRo: "Belize", nameEn: "Belize" },
+    { code: "BJ", nameRo: "Benin", nameEn: "Benin" },
+    { code: "BT", nameRo: "Bhutan", nameEn: "Bhutan" },
+    { code: "BO", nameRo: "Bolivia", nameEn: "Bolivia" },
+    { code: "BA", nameRo: "Bosnia și Herțegovina", nameEn: "Bosnia and Herzegovina" },
+    { code: "BW", nameRo: "Botswana", nameEn: "Botswana" },
+    { code: "BR", nameRo: "Brazilia", nameEn: "Brazil" },
+    { code: "BN", nameRo: "Brunei", nameEn: "Brunei" },
+    { code: "BG", nameRo: "Bulgaria", nameEn: "Bulgaria" },
+    { code: "BF", nameRo: "Burkina Faso", nameEn: "Burkina Faso" },
+    { code: "BI", nameRo: "Burundi", nameEn: "Burundi" },
+    { code: "KH", nameRo: "Cambodgia", nameEn: "Cambodia" },
+    { code: "CM", nameRo: "Camerun", nameEn: "Cameroon" },
+    { code: "CA", nameRo: "Canada", nameEn: "Canada" },
+    { code: "CV", nameRo: "Capul Verde", nameEn: "Cape Verde" },
+    { code: "CF", nameRo: "Republica Centrafricană", nameEn: "Central African Republic" },
+    { code: "TD", nameRo: "Ciad", nameEn: "Chad" },
+    { code: "CL", nameRo: "Chile", nameEn: "Chile" },
+    { code: "CN", nameRo: "China", nameEn: "China" },
+    { code: "CO", nameRo: "Columbia", nameEn: "Colombia" },
+    { code: "KM", nameRo: "Comore", nameEn: "Comoros" },
+    { code: "CG", nameRo: "Congo", nameEn: "Congo" },
+    { code: "CD", nameRo: "Republica Democrată Congo", nameEn: "Democratic Republic of the Congo" },
+    { code: "CR", nameRo: "Costa Rica", nameEn: "Costa Rica" },
+    { code: "HR", nameRo: "Croația", nameEn: "Croatia" },
+    { code: "CU", nameRo: "Cuba", nameEn: "Cuba" },
+    { code: "CY", nameRo: "Cipru", nameEn: "Cyprus" },
+    { code: "CZ", nameRo: "Cehia", nameEn: "Czech Republic" },
+    { code: "DK", nameRo: "Danemarca", nameEn: "Denmark" },
+    { code: "DJ", nameRo: "Djibouti", nameEn: "Djibouti" },
+    { code: "DM", nameRo: "Dominica", nameEn: "Dominica" },
+    { code: "DO", nameRo: "Republica Dominicană", nameEn: "Dominican Republic" },
+    { code: "EC", nameRo: "Ecuador", nameEn: "Ecuador" },
+    { code: "EG", nameRo: "Egipt", nameEn: "Egypt" },
+    { code: "SV", nameRo: "El Salvador", nameEn: "El Salvador" },
+    { code: "GQ", nameRo: "Guineea Ecuatorială", nameEn: "Equatorial Guinea" },
+    { code: "ER", nameRo: "Eritreea", nameEn: "Eritrea" },
+    { code: "EE", nameRo: "Estonia", nameEn: "Estonia" },
+    { code: "SZ", nameRo: "Eswatini", nameEn: "Eswatini" },
+    { code: "ET", nameRo: "Etiopia", nameEn: "Ethiopia" },
+    { code: "FJ", nameRo: "Fiji", nameEn: "Fiji" },
+    { code: "FI", nameRo: "Finlanda", nameEn: "Finland" },
+    { code: "FR", nameRo: "Franța", nameEn: "France" },
+    { code: "GA", nameRo: "Gabon", nameEn: "Gabon" },
+    { code: "GM", nameRo: "Gambia", nameEn: "Gambia" },
+    { code: "GE", nameRo: "Georgia", nameEn: "Georgia" },
+    { code: "DE", nameRo: "Germania", nameEn: "Germany" },
+    { code: "GH", nameRo: "Ghana", nameEn: "Ghana" },
+    { code: "GR", nameRo: "Grecia", nameEn: "Greece" },
+    { code: "GD", nameRo: "Grenada", nameEn: "Grenada" },
+    { code: "GT", nameRo: "Guatemala", nameEn: "Guatemala" },
+    { code: "GN", nameRo: "Guineea", nameEn: "Guinea" },
+    { code: "GW", nameRo: "Guineea-Bissau", nameEn: "Guinea-Bissau" },
+    { code: "GY", nameRo: "Guyana", nameEn: "Guyana" },
+    { code: "HT", nameRo: "Haiti", nameEn: "Haiti" },
+    { code: "HN", nameRo: "Honduras", nameEn: "Honduras" },
+    { code: "HU", nameRo: "Ungaria", nameEn: "Hungary" },
+    { code: "IS", nameRo: "Islanda", nameEn: "Iceland" },
+    { code: "IN", nameRo: "India", nameEn: "India" },
+    { code: "ID", nameRo: "Indonezia", nameEn: "Indonesia" },
+    { code: "IR", nameRo: "Iran", nameEn: "Iran" },
+    { code: "IQ", nameRo: "Irak", nameEn: "Iraq" },
+    { code: "IE", nameRo: "Irlanda", nameEn: "Ireland" },
+    { code: "IL", nameRo: "Israel", nameEn: "Israel" },
+    { code: "IT", nameRo: "Italia", nameEn: "Italy" },
+    { code: "CI", nameRo: "Coasta de Fildeș", nameEn: "Ivory Coast" },
+    { code: "JM", nameRo: "Jamaica", nameEn: "Jamaica" },
+    { code: "JP", nameRo: "Japonia", nameEn: "Japan" },
+    { code: "JO", nameRo: "Iordania", nameEn: "Jordan" },
+    { code: "KZ", nameRo: "Kazahstan", nameEn: "Kazakhstan" },
+    { code: "KE", nameRo: "Kenya", nameEn: "Kenya" },
+    { code: "KI", nameRo: "Kiribati", nameEn: "Kiribati" },
+    { code: "KP", nameRo: "Coreea de Nord", nameEn: "North Korea" },
+    { code: "KR", nameRo: "Coreea de Sud", nameEn: "South Korea" },
+    { code: "KW", nameRo: "Kuweit", nameEn: "Kuwait" },
+    { code: "KG", nameRo: "Kârgâzstan", nameEn: "Kyrgyzstan" },
+    { code: "LA", nameRo: "Laos", nameEn: "Laos" },
+    { code: "LV", nameRo: "Letonia", nameEn: "Latvia" },
+    { code: "LB", nameRo: "Liban", nameEn: "Lebanon" },
+    { code: "LS", nameRo: "Lesotho", nameEn: "Lesotho" },
+    { code: "LR", nameRo: "Liberia", nameEn: "Liberia" },
+    { code: "LY", nameRo: "Libia", nameEn: "Libya" },
+    { code: "LI", nameRo: "Liechtenstein", nameEn: "Liechtenstein" },
+    { code: "LT", nameRo: "Lituania", nameEn: "Lithuania" },
+    { code: "LU", nameRo: "Luxemburg", nameEn: "Luxembourg" },
+    { code: "MG", nameRo: "Madagascar", nameEn: "Madagascar" },
+    { code: "MW", nameRo: "Malawi", nameEn: "Malawi" },
+    { code: "MY", nameRo: "Malaezia", nameEn: "Malaysia" },
+    { code: "MV", nameRo: "Maldive", nameEn: "Maldives" },
+    { code: "ML", nameRo: "Mali", nameEn: "Mali" },
+    { code: "MT", nameRo: "Malta", nameEn: "Malta" },
+    { code: "MH", nameRo: "Insulele Marshall", nameEn: "Marshall Islands" },
+    { code: "MR", nameRo: "Mauritania", nameEn: "Mauritania" },
+    { code: "MU", nameRo: "Mauritius", nameEn: "Mauritius" },
+    { code: "MX", nameRo: "Mexic", nameEn: "Mexico" },
+    { code: "FM", nameRo: "Micronezia", nameEn: "Micronesia" },
+    { code: "MD", nameRo: "Moldova", nameEn: "Moldova" },
+    { code: "MC", nameRo: "Monaco", nameEn: "Monaco" },
+    { code: "MN", nameRo: "Mongolia", nameEn: "Mongolia" },
+    { code: "ME", nameRo: "Muntenegru", nameEn: "Montenegro" },
+    { code: "MA", nameRo: "Maroc", nameEn: "Morocco" },
+    { code: "MZ", nameRo: "Mozambic", nameEn: "Mozambique" },
+    { code: "MM", nameRo: "Myanmar", nameEn: "Myanmar" },
+    { code: "NA", nameRo: "Namibia", nameEn: "Namibia" },
+    { code: "NR", nameRo: "Nauru", nameEn: "Nauru" },
+    { code: "NP", nameRo: "Nepal", nameEn: "Nepal" },
+    { code: "NL", nameRo: "Olanda", nameEn: "Netherlands" },
+    { code: "NZ", nameRo: "Noua Zeelandă", nameEn: "New Zealand" },
+    { code: "NI", nameRo: "Nicaragua", nameEn: "Nicaragua" },
+    { code: "NE", nameRo: "Niger", nameEn: "Niger" },
+    { code: "NG", nameRo: "Nigeria", nameEn: "Nigeria" },
+    { code: "MK", nameRo: "Macedonia de Nord", nameEn: "North Macedonia" },
+    { code: "NO", nameRo: "Norvegia", nameEn: "Norway" },
+    { code: "OM", nameRo: "Oman", nameEn: "Oman" },
+    { code: "PK", nameRo: "Pakistan", nameEn: "Pakistan" },
+    { code: "PW", nameRo: "Palau", nameEn: "Palau" },
+    { code: "PS", nameRo: "Palestina", nameEn: "Palestine" },
+    { code: "PA", nameRo: "Panama", nameEn: "Panama" },
+    { code: "PG", nameRo: "Papua Noua Guinee", nameEn: "Papua New Guinea" },
+    { code: "PY", nameRo: "Paraguay", nameEn: "Paraguay" },
+    { code: "PE", nameRo: "Peru", nameEn: "Peru" },
+    { code: "PH", nameRo: "Filipine", nameEn: "Philippines" },
+    { code: "PL", nameRo: "Polonia", nameEn: "Poland" },
+    { code: "PT", nameRo: "Portugalia", nameEn: "Portugal" },
+    { code: "QA", nameRo: "Qatar", nameEn: "Qatar" },
+    { code: "RO", nameRo: "România", nameEn: "Romania" },
+    { code: "RU", nameRo: "Rusia", nameEn: "Russia" },
+    { code: "RW", nameRo: "Rwanda", nameEn: "Rwanda" },
+    { code: "KN", nameRo: "Saint Kitts și Nevis", nameEn: "Saint Kitts and Nevis" },
+    { code: "LC", nameRo: "Saint Lucia", nameEn: "Saint Lucia" },
+    { code: "VC", nameRo: "Saint Vincent și Grenadine", nameEn: "Saint Vincent and the Grenadines" },
+    { code: "WS", nameRo: "Samoa", nameEn: "Samoa" },
+    { code: "SM", nameRo: "San Marino", nameEn: "San Marino" },
+    { code: "ST", nameRo: "São Tomé și Príncipe", nameEn: "São Tomé and Príncipe" },
+    { code: "SA", nameRo: "Arabia Saudită", nameEn: "Saudi Arabia" },
+    { code: "SN", nameRo: "Senegal", nameEn: "Senegal" },
+    { code: "RS", nameRo: "Serbia", nameEn: "Serbia" },
+    { code: "SC", nameRo: "Seychelles", nameEn: "Seychelles" },
+    { code: "SL", nameRo: "Sierra Leone", nameEn: "Sierra Leone" },
+    { code: "SG", nameRo: "Singapore", nameEn: "Singapore" },
+    { code: "SK", nameRo: "Slovacia", nameEn: "Slovakia" },
+    { code: "SI", nameRo: "Slovenia", nameEn: "Slovenia" },
+    { code: "SB", nameRo: "Insulele Solomon", nameEn: "Solomon Islands" },
+    { code: "SO", nameRo: "Somalia", nameEn: "Somalia" },
+    { code: "ZA", nameRo: "Africa de Sud", nameEn: "South Africa" },
+    { code: "SS", nameRo: "Sudanul de Sud", nameEn: "South Sudan" },
+    { code: "ES", nameRo: "Spania", nameEn: "Spain" },
+    { code: "LK", nameRo: "Sri Lanka", nameEn: "Sri Lanka" },
+    { code: "SD", nameRo: "Sudan", nameEn: "Sudan" },
+    { code: "SR", nameRo: "Surinam", nameEn: "Suriname" },
+    { code: "SE", nameRo: "Suedia", nameEn: "Sweden" },
+    { code: "CH", nameRo: "Elveția", nameEn: "Switzerland" },
+    { code: "SY", nameRo: "Siria", nameEn: "Syria" },
+    { code: "TW", nameRo: "Taiwan", nameEn: "Taiwan" },
+    { code: "TJ", nameRo: "Tadjikistan", nameEn: "Tajikistan" },
+    { code: "TZ", nameRo: "Tanzania", nameEn: "Tanzania" },
+    { code: "TH", nameRo: "Thailanda", nameEn: "Thailand" },
+    { code: "TL", nameRo: "Timorul de Est", nameEn: "Timor-Leste" },
+    { code: "TG", nameRo: "Togo", nameEn: "Togo" },
+    { code: "TO", nameRo: "Tonga", nameEn: "Tonga" },
+    { code: "TT", nameRo: "Trinidad și Tobago", nameEn: "Trinidad and Tobago" },
+    { code: "TN", nameRo: "Tunisia", nameEn: "Tunisia" },
+    { code: "TR", nameRo: "Turcia", nameEn: "Turkey" },
+    { code: "TM", nameRo: "Turkmenistan", nameEn: "Turkmenistan" },
+    { code: "TV", nameRo: "Tuvalu", nameEn: "Tuvalu" },
+    { code: "UG", nameRo: "Uganda", nameEn: "Uganda" },
+    { code: "UA", nameRo: "Ucraina", nameEn: "Ukraine" },
+    { code: "AE", nameRo: "Emiratele Arabe Unite", nameEn: "United Arab Emirates" },
+    { code: "GB", nameRo: "Regatul Unit", nameEn: "United Kingdom" },
+    { code: "US", nameRo: "Statele Unite ale Americii", nameEn: "United States" },
+    { code: "UY", nameRo: "Uruguay", nameEn: "Uruguay" },
+    { code: "UZ", nameRo: "Uzbekistan", nameEn: "Uzbekistan" },
+    { code: "VU", nameRo: "Vanuatu", nameEn: "Vanuatu" },
+    { code: "VA", nameRo: "Vatican", nameEn: "Vatican City" },
+    { code: "VE", nameRo: "Venezuela", nameEn: "Venezuela" },
+    { code: "VN", nameRo: "Vietnam", nameEn: "Vietnam" },
+    { code: "YE", nameRo: "Yemen", nameEn: "Yemen" },
+    { code: "ZM", nameRo: "Zambia", nameEn: "Zambia" },
+    { code: "ZW", nameRo: "Zimbabwe", nameEn: "Zimbabwe" },
+  ];
+
+  const professionalGrades = [
+    { value: "medic_rezident", label: t("form.residentPhysician") },
+    { value: "medic_specialist", label: t("form.specialistPhysician") },
+    { value: "medic_primar", label: t("form.seniorPhysician") },
+    { value: "student_medicina", label: t("form.medicalStudent") },
+    { value: "doctorand", label: t("form.phdStudent") },
+    { value: "asistent_medical", label: t("form.nurse") },
+    { value: "alta", label: t("form.otherCategory") },
+  ];
+
+  const membershipTypes = [
+    { value: "membru_activ", label: t("form.activeMember") },
+    { value: "membru_asociat", label: t("form.associateMember") },
+  ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,14 +271,13 @@ export default function MembershipApplicationPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Eroare la trimiterea cererii");
+        throw new Error(data.error || (language === "en" ? "Error submitting application" : "Eroare la trimiterea cererii"));
       }
 
       setIsSuccess(true);
-    } catch (err: any) {
-      setError(
-        err.message || "A apărut o eroare. Vă rugăm să încercați din nou."
-      );
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : (language === "en" ? "An error occurred. Please try again." : "A apărut o eroare. Vă rugăm să încercați din nou.");
+      setError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -75,24 +289,29 @@ export default function MembershipApplicationPage() {
         <Button variant="ghost" asChild>
           <Link href="/about/members">
             <ArrowLeft className="mr-2 size-4" />
-            Înapoi la Membri
+            {language === "en" ? "Back to Members" : "Înapoi la Membri"}
           </Link>
         </Button>
 
-        <Card className="border-green-200 bg-green-50">
+        <Card className="border-green-200 bg-green-50 dark:bg-green-950/20">
           <CardContent className="pt-6">
             <div className="flex flex-col items-center text-center space-y-4">
-              <div className="flex size-16 items-center justify-center rounded-full bg-green-100">
+              <div className="flex size-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
                 <CheckCircle2 className="size-10 text-green-600" />
               </div>
-              <h2 className="text-2xl font-bold">Cerere Trimisă cu Succes!</h2>
+              <h2 className="text-2xl font-bold">
+                {language === "en" ? "Application Submitted Successfully!" : "Cerere Trimisă cu Succes!"}
+              </h2>
               <p className="text-muted-foreground">
-                Vă mulțumim pentru interesul manifestat față de SCIPI. Cererea
-                dumneavoastră a fost înregistrată.
+                {language === "en" 
+                  ? "Thank you for your interest in SRIID. Your application has been registered." 
+                  : "Vă mulțumim pentru interesul manifestat față de SCIPI. Cererea dumneavoastră a fost înregistrată."}
               </p>
 
               <Button asChild className="mt-4">
-                <Link href="/about/members">Înapoi la Pagina Membri</Link>
+                <Link href="/about/members">
+                  {language === "en" ? "Back to Members Page" : "Înapoi la Pagina Membri"}
+                </Link>
               </Button>
             </div>
           </CardContent>
@@ -106,13 +325,13 @@ export default function MembershipApplicationPage() {
       <Button variant="ghost" asChild>
         <Link href="/about/members">
           <ArrowLeft className="mr-2 size-4" />
-          Înapoi la Membri
+          {language === "en" ? "Back to Members" : "Înapoi la Membri"}
         </Link>
       </Button>
 
       <div className="space-y-4">
         <h1 className="text-4xl font-bold tracking-tight">
-          Formular pentru dobândirea calității de membru SCIPI
+          {t("form.title")}
         </h1>
         <div className="h-1 w-20 bg-primary rounded-full" />
       </div>
@@ -120,19 +339,18 @@ export default function MembershipApplicationPage() {
       <Card>
         <CardHeader>
           <CardDescription>
-            Completați formularul de mai jos pentru a aplica pentru calitatea de
-            membru SCIPI. Toate câmpurile marcate cu * sunt obligatorii.
+            {t("form.intro")}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Personal Information */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Date Personale</h3>
+              <h3 className="text-lg font-semibold">{t("form.personalInfo")}</h3>
 
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="firstName">Prenume *</Label>
+                  <Label htmlFor="firstName">{t("form.firstName")} *</Label>
                   <Input
                     id="firstName"
                     required
@@ -144,7 +362,7 @@ export default function MembershipApplicationPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="lastName">Nume *</Label>
+                  <Label htmlFor="lastName">{t("form.lastName")} *</Label>
                   <Input
                     id="lastName"
                     required
@@ -157,7 +375,7 @@ export default function MembershipApplicationPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">E-mail *</Label>
+                <Label htmlFor="email">{t("form.email")} *</Label>
                 <Input
                   id="email"
                   type="email"
@@ -168,23 +386,44 @@ export default function MembershipApplicationPage() {
                   }
                 />
               </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="country">{t("form.country")} *</Label>
+                <select
+                  id="country"
+                  required
+                  value={formData.country}
+                  onChange={(e) =>
+                    setFormData({ ...formData, country: e.target.value })
+                  }
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <option value="">
+                    {language === "en" ? "Select a country" : "Selectează țara"}
+                  </option>
+                  {countries
+                    .sort((a, b) => {
+                      const nameA = language === "en" ? a.nameEn : a.nameRo;
+                      const nameB = language === "en" ? b.nameEn : b.nameRo;
+                      return nameA.localeCompare(nameB);
+                    })
+                    .map((country) => (
+                      <option key={country.code} value={country.code}>
+                        {language === "en" ? country.nameEn : country.nameRo}
+                      </option>
+                    ))}
+                </select>
+              </div>
             </div>
 
             {/* Professional Information */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Date Profesionale</h3>
+              <h3 className="text-lg font-semibold">{t("form.professionalInfo")}</h3>
 
               <div className="space-y-2">
-                <Label htmlFor="professionalGrade">Grad profesional *</Label>
+                <Label htmlFor="professionalGrade">{t("form.professionalGrade")} *</Label>
                 <div className="space-y-2">
-                  {[
-                    { value: "medic_rezident", label: "Medic rezident" },
-                    { value: "medic_specialist", label: "Medic specialist" },
-                    { value: "medic_primar", label: "Medic primar" },
-                    { value: "student_medicina", label: "Student medicină" },
-                    { value: "asistent_medical", label: "Asistent medical" },
-                    { value: "alta", label: "Altă categorie" },
-                  ].map((option) => (
+                  {professionalGrades.map((option) => (
                     <div
                       key={option.value}
                       className="flex items-center space-x-2"
@@ -218,7 +457,7 @@ export default function MembershipApplicationPage() {
               {formData.professionalGrade === "alta" && (
                 <div className="space-y-2">
                   <Label htmlFor="otherProfessionalGrade">
-                    Specificați categoria *
+                    {language === "en" ? "Specify category" : "Specificați categoria"} *
                   </Label>
                   <Input
                     id="otherProfessionalGrade"
@@ -236,7 +475,7 @@ export default function MembershipApplicationPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="medicalSpecialty">
-                  Specialitate medicală *
+                  {t("form.medicalSpecialty")} *
                 </Label>
                 <Input
                   id="medicalSpecialty"
@@ -252,10 +491,10 @@ export default function MembershipApplicationPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="academicDegree">Grad didactic</Label>
+                <Label htmlFor="academicDegree">{t("form.academicDegree")}</Label>
                 <Input
                   id="academicDegree"
-                  placeholder="Ex: Asistent universitar, Conferențiar, Profesor"
+                  placeholder={language === "en" ? "E.g.: Assistant Professor, Associate Professor, Professor" : "Ex: Asistent universitar, Conferențiar, Profesor"}
                   value={formData.academicDegree}
                   onChange={(e) =>
                     setFormData({ ...formData, academicDegree: e.target.value })
@@ -265,12 +504,12 @@ export default function MembershipApplicationPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="institutionalAffiliation">
-                  Afiliere instituțională *
+                  {t("form.institutionalAffiliation")} *
                 </Label>
                 <Input
                   id="institutionalAffiliation"
                   required
-                  placeholder="Ex: Spitalul Clinic de Boli Infecțioase Cluj-Napoca"
+                  placeholder={language === "en" ? "E.g.: Clinical Hospital of Infectious Diseases" : "Ex: Spitalul Clinic de Boli Infecțioase Cluj-Napoca"}
                   value={formData.institutionalAffiliation}
                   onChange={(e) =>
                     setFormData({
@@ -284,12 +523,9 @@ export default function MembershipApplicationPage() {
 
             {/* Membership Type */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Tip Membru</h3>
+              <h3 className="text-lg font-semibold">{t("form.membershipType")}</h3>
               <div className="space-y-2">
-                {[
-                  { value: "membru_activ", label: "Membru activ" },
-                  { value: "medic_asociat", label: "Medic asociat" },
-                ].map((option) => (
+                {membershipTypes.map((option) => (
                   <div
                     key={option.value}
                     className="flex items-center space-x-2"
@@ -323,9 +559,7 @@ export default function MembershipApplicationPage() {
             {/* Research Interests */}
             <div className="space-y-2">
               <Label htmlFor="researchInterests">
-                De ce doriți să fiți membru SCIPI? Descrieți activitatea de
-                cercetare sau interesele de cercetare în domeniul patologiilor
-                infecțioase. *
+                {t("form.whyJoin")} *
               </Label>
               <Textarea
                 id="researchInterests"
@@ -338,14 +572,14 @@ export default function MembershipApplicationPage() {
                     researchInterests: e.target.value,
                   })
                 }
-                placeholder="Descrieți pe scurt motivația dumneavoastră și interesele de cercetare..."
+                placeholder={language === "en" ? "Briefly describe your motivation and research interests..." : "Descrieți pe scurt motivația dumneavoastră și interesele de cercetare..."}
               />
             </div>
 
             {/* Consents */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">
-                Acorduri și declarații (obligatoriu)
+                {t("form.agreements")}
               </h3>
 
               <div className="flex items-start space-x-2">
@@ -364,11 +598,7 @@ export default function MembershipApplicationPage() {
                   htmlFor="gdprConsent"
                   className="font-normal leading-relaxed cursor-pointer"
                 >
-                  Sunt de acord cu prelucrarea datelor cu caracter personal
-                  furnizate prin acest formular de către Departamentul Membri al
-                  SCIPI, în scopul gestionării cererii de aderare și a evidenței
-                  membrilor, conform Politicii de confidențialitate și
-                  legislației aplicabile (GDPR). *
+                  {t("form.gdprConsent")} *
                 </Label>
               </div>
 
@@ -385,14 +615,12 @@ export default function MembershipApplicationPage() {
                   htmlFor="feeConsent"
                   className="font-normal leading-relaxed cursor-pointer"
                 >
-                  Declar că am luat la cunoștință că, în cazul acceptării
-                  cererii mele de aderare, mă oblig să achit cotizația anuală
-                  conform cuantumului și termenelor stabilite de SCIPI. *
+                  {t("form.feeConsent")} *
                 </Label>
               </div>
 
               <div className="space-y-2">
-                <h4 className="font-medium">Opțional</h4>
+                <h4 className="font-medium">{t("form.optional")}</h4>
                 <div className="flex items-start space-x-2">
                   <Checkbox
                     id="newsletterConsent"
@@ -408,16 +636,15 @@ export default function MembershipApplicationPage() {
                     htmlFor="newsletterConsent"
                     className="font-normal leading-relaxed cursor-pointer"
                   >
-                    Sunt de acord să primesc comunicări (newsletter, anunțuri,
-                    invitații la evenimente) din partea SCIPI, pe e-mail.
+                    {t("form.newsletterConsent")}
                   </Label>
                 </div>
               </div>
             </div>
 
             {error && (
-              <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-sm text-red-600">{error}</p>
+              <div className="p-4 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-lg">
+                <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
               </div>
             )}
 
@@ -428,11 +655,11 @@ export default function MembershipApplicationPage() {
               disabled={isSubmitting}
             >
               {isSubmitting ? (
-                <>Trimitere...</>
+                <>{language === "en" ? "Submitting..." : "Trimitere..."}</>
               ) : (
                 <>
                   <Send className="mr-2 size-4" />
-                  Trimite Cererea
+                  {t("form.submit")}
                 </>
               )}
             </Button>

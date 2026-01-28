@@ -7,8 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Send, CheckCircle2 } from "lucide-react";
+import { useLanguage } from "@/lib/language-context";
 
 export default function ContactPage() {
+  const { t, language } = useLanguage();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -37,10 +39,10 @@ export default function ContactPage() {
         setFormData({ name: "", email: "", subject: "", message: "" });
       } else {
         const data = await response.json();
-        setError(data.error || "A apărut o eroare. Te rugăm să încerci din nou.");
+        setError(data.error || t("contact.error"));
       }
     } catch (err) {
-      setError("A apărut o eroare. Te rugăm să încerci din nou.");
+      setError(t("contact.error"));
     } finally {
       setLoading(false);
     }
@@ -50,20 +52,19 @@ export default function ContactPage() {
     <div className="max-w-7xl mx-auto px-4 py-12 md:px-6 md:py-16">
       <div className="mb-8">
         <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl mb-4">
-          Contact
+          {t("contact.title")}
         </h1>
         <p className="text-lg text-muted-foreground max-w-[700px]">
-          Ai întrebări sau sugestii? Ne-ar face plăcere să auzim de la tine. Completează
-          formularul de mai jos și îți vom răspunde în cel mai scurt timp posibil.
+          {t("contact.intro")}
         </p>
       </div>
 
       <div className="max-w-2xl mx-auto">
         <Card>
           <CardHeader>
-            <CardTitle>Trimite-ne un Mesaj</CardTitle>
+            <CardTitle>{t("contact.sendMessage")}</CardTitle>
             <CardDescription>
-              Completează formularul și îți vom răspunde în cel mai scurt timp posibil.
+              {t("contact.formIntro")}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -72,20 +73,21 @@ export default function ContactPage() {
                 <div className="flex size-16 items-center justify-center rounded-full bg-primary/10 mb-4">
                   <CheckCircle2 className="size-8 text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Mesaj Trimis cu Succes!</h3>
+                <h3 className="text-xl font-semibold mb-2">{t("contact.success")}</h3>
                 <p className="text-muted-foreground mb-4">
-                  Îți mulțumim pentru mesaj. Îți vom răspunde în cel mai scurt timp
-                  posibil.
+                  {language === "en" 
+                    ? "Thank you for your message. We will get back to you as soon as possible." 
+                    : "Îți mulțumim pentru mesaj. Îți vom răspunde în cel mai scurt timp posibil."}
                 </p>
                 <Button onClick={() => setSuccess(false)}>
-                  Trimite Alt Mesaj
+                  {language === "en" ? "Send Another Message" : "Trimite Alt Mesaj"}
                 </Button>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
-                    <Label htmlFor="name">Nume Complet *</Label>
+                    <Label htmlFor="name">{t("contact.fullName")} *</Label>
                     <Input
                       id="name"
                       value={formData.name}
@@ -93,11 +95,11 @@ export default function ContactPage() {
                         setFormData({ ...formData, name: e.target.value })
                       }
                       required
-                      placeholder="Ion Popescu"
+                      placeholder={language === "en" ? "John Doe" : "Ion Popescu"}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email *</Label>
+                    <Label htmlFor="email">{t("contact.email")} *</Label>
                     <Input
                       id="email"
                       type="email"
@@ -106,12 +108,12 @@ export default function ContactPage() {
                         setFormData({ ...formData, email: e.target.value })
                       }
                       required
-                      placeholder="ion.popescu@email.com"
+                      placeholder={language === "en" ? "john.doe@email.com" : "ion.popescu@email.com"}
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="subject">Subiect *</Label>
+                  <Label htmlFor="subject">{t("contact.subject")} *</Label>
                   <Input
                     id="subject"
                     value={formData.subject}
@@ -119,11 +121,11 @@ export default function ContactPage() {
                       setFormData({ ...formData, subject: e.target.value })
                     }
                     required
-                    placeholder="Despre ce vrei să discutăm?"
+                    placeholder={language === "en" ? "What would you like to discuss?" : "Despre ce vrei să discutăm?"}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="message">Mesaj *</Label>
+                  <Label htmlFor="message">{t("contact.message")} *</Label>
                   <Textarea
                     id="message"
                     value={formData.message}
@@ -132,7 +134,7 @@ export default function ContactPage() {
                     }
                     required
                     rows={6}
-                    placeholder="Scrie mesajul tău aici..."
+                    placeholder={language === "en" ? "Write your message here..." : "Scrie mesajul tău aici..."}
                   />
                 </div>
                 {error && (
@@ -142,11 +144,11 @@ export default function ContactPage() {
                 )}
                 <Button type="submit" disabled={loading} className="w-full sm:w-auto">
                   {loading ? (
-                    "Se trimite..."
+                    t("contact.sending")
                   ) : (
                     <>
                       <Send className="mr-2 size-4" />
-                      Trimite Mesaj
+                      {t("contact.send")}
                     </>
                   )}
                 </Button>
@@ -158,4 +160,3 @@ export default function ContactPage() {
     </div>
   );
 }
-

@@ -16,6 +16,7 @@ import {
   FileText,
   X
 } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export interface SectionFile {
   id?: string;
@@ -28,7 +29,9 @@ export interface SectionFile {
 export interface EventSection {
   id?: string;
   title?: string;
+  titleEn?: string;
   content?: string;
+  contentEn?: string;
   backgroundColor?: string;
   displayOrder: number;
   files?: SectionFile[];
@@ -57,7 +60,9 @@ export function EventSectionEditor({ sections, onChange }: EventSectionEditorPro
   const addSection = () => {
     const newSection: EventSection = {
       title: "",
+      titleEn: "",
       content: "",
+      contentEn: "",
       backgroundColor: "white",
       displayOrder: sections.length,
       files: [],
@@ -291,19 +296,47 @@ export function EventSectionEditor({ sections, onChange }: EventSectionEditorPro
 
                 {isExpanded && (
                   <CardContent className="pt-0 space-y-4">
-                    {/* Section Title */}
-                    <div className="grid gap-2">
-                      <Label htmlFor={`section-title-${index}`}>Titlu Secțiune</Label>
-                      <Input
-                        id={`section-title-${index}`}
-                        value={section.title || ""}
-                        onChange={(e) => updateSection(index, { title: e.target.value })}
-                        placeholder="Ex: Course Description, Programme, Scientific Committee..."
-                      />
-                      <p className="text-xs text-muted-foreground">
-                        Titlul va fi afișat cu formatare consistentă pe site
-                      </p>
-                    </div>
+                    {/* Section Title with Language Tabs */}
+                    <Tabs defaultValue="title-ro" className="w-full">
+                      <TabsList className="grid w-full grid-cols-2 mb-2">
+                        <TabsTrigger value="title-ro" className="flex items-center gap-2">
+                          <span>🇷🇴</span> Titlu RO
+                        </TabsTrigger>
+                        <TabsTrigger value="title-en" className="flex items-center gap-2">
+                          <span>🇬🇧</span> Title EN
+                        </TabsTrigger>
+                      </TabsList>
+                      
+                      <TabsContent value="title-ro">
+                        <div className="grid gap-2">
+                          <Label htmlFor={`section-title-${index}`}>Titlu Secțiune</Label>
+                          <Input
+                            id={`section-title-${index}`}
+                            value={section.title || ""}
+                            onChange={(e) => updateSection(index, { title: e.target.value })}
+                            placeholder="Ex: Descriere Curs, Program, Comitet Științific..."
+                          />
+                          <p className="text-xs text-muted-foreground">
+                            Titlul va fi afișat cu formatare consistentă pe site
+                          </p>
+                        </div>
+                      </TabsContent>
+
+                      <TabsContent value="title-en">
+                        <div className="grid gap-2">
+                          <Label htmlFor={`section-title-en-${index}`}>Section Title (English)</Label>
+                          <Input
+                            id={`section-title-en-${index}`}
+                            value={section.titleEn || ""}
+                            onChange={(e) => updateSection(index, { titleEn: e.target.value })}
+                            placeholder="Ex: Course Description, Programme, Scientific Committee..."
+                          />
+                          <p className="text-xs text-muted-foreground">
+                            English version of the section title
+                          </p>
+                        </div>
+                      </TabsContent>
+                    </Tabs>
 
                     {/* Background Color */}
                     <div className="grid gap-2">
@@ -328,15 +361,39 @@ export function EventSectionEditor({ sections, onChange }: EventSectionEditorPro
                       </Select>
                     </div>
 
-                    {/* Content Editor */}
-                    <div className="grid gap-2">
-                      <Label>Conținut</Label>
-                      <RichTextEditor
-                        content={section.content || ""}
-                        onChange={(html) => updateSection(index, { content: html })}
-                        placeholder="Scrie conținutul secțiunii..."
-                      />
-                    </div>
+                    {/* Content Editor with Language Tabs */}
+                    <Tabs defaultValue="content-ro" className="w-full">
+                      <TabsList className="grid w-full grid-cols-2 mb-2">
+                        <TabsTrigger value="content-ro" className="flex items-center gap-2">
+                          <span>🇷🇴</span> Conținut RO
+                        </TabsTrigger>
+                        <TabsTrigger value="content-en" className="flex items-center gap-2">
+                          <span>🇬🇧</span> Content EN
+                        </TabsTrigger>
+                      </TabsList>
+                      
+                      <TabsContent value="content-ro">
+                        <div className="grid gap-2">
+                          <Label>Conținut</Label>
+                          <RichTextEditor
+                            content={section.content || ""}
+                            onChange={(html) => updateSection(index, { content: html })}
+                            placeholder="Scrie conținutul secțiunii..."
+                          />
+                        </div>
+                      </TabsContent>
+
+                      <TabsContent value="content-en">
+                        <div className="grid gap-2">
+                          <Label>Content (English)</Label>
+                          <RichTextEditor
+                            content={section.contentEn || ""}
+                            onChange={(html) => updateSection(index, { contentEn: html })}
+                            placeholder="Write the section content in English..."
+                          />
+                        </div>
+                      </TabsContent>
+                    </Tabs>
 
                     {/* Files */}
                     <div className="grid gap-2">

@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Plus, Pencil, Trash2, GripVertical, Eye, EyeOff, ExternalLink, Calendar, FolderKanban, BookOpen, Newspaper } from "lucide-react";
 import { RichTextEditor } from "@/components/admin/RichTextEditor";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface Event {
   id: string;
@@ -32,8 +33,11 @@ interface Resource {
 interface NewsItem {
   id: string;
   title: string;
+  titleEn: string | null;
   excerpt: string | null;
+  excerptEn: string | null;
   content: string | null;
+  contentEn: string | null;
   linkType: string;
   linkUrl: string | null;
   eventId: string | null;
@@ -61,8 +65,11 @@ export default function AdminNewsPage() {
   const [deletingNewsId, setDeletingNewsId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     title: "",
+    titleEn: "",
     excerpt: "",
+    excerptEn: "",
     content: "",
+    contentEn: "",
     linkType: "internal",
     linkUrl: "",
     eventId: "",
@@ -222,8 +229,11 @@ export default function AdminNewsPage() {
     setEditingNews(newsItem);
     setFormData({
       title: newsItem.title,
+      titleEn: newsItem.titleEn || "",
       excerpt: newsItem.excerpt || "",
+      excerptEn: newsItem.excerptEn || "",
       content: newsItem.content || "",
+      contentEn: newsItem.contentEn || "",
       linkType: newsItem.linkType,
       linkUrl: newsItem.linkUrl || "",
       eventId: newsItem.eventId || "",
@@ -243,8 +253,11 @@ export default function AdminNewsPage() {
     setEditingNews(null);
     setFormData({
       title: "",
+      titleEn: "",
       excerpt: "",
+      excerptEn: "",
       content: "",
+      contentEn: "",
       linkType: "internal",
       linkUrl: "",
       eventId: "",
@@ -448,31 +461,71 @@ export default function AdminNewsPage() {
           </DialogHeader>
           <form onSubmit={handleSubmit}>
             <div className="grid gap-6 py-4">
-              <div className="grid gap-2">
-                <Label htmlFor="title">Titlu *</Label>
-                <Input
-                  id="title"
-                  value={formData.title}
-                  onChange={(e) =>
-                    setFormData({ ...formData, title: e.target.value })
-                  }
-                  placeholder="Ex: Anunț important pentru membri"
-                  required
-                />
-              </div>
+              <Tabs defaultValue="ro" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 mb-4">
+                  <TabsTrigger value="ro" className="flex items-center gap-2">
+                    <span>🇷🇴</span> Română
+                  </TabsTrigger>
+                  <TabsTrigger value="en" className="flex items-center gap-2">
+                    <span>🇬🇧</span> English
+                  </TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="ro" className="space-y-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="title">Titlu *</Label>
+                    <Input
+                      id="title"
+                      value={formData.title}
+                      onChange={(e) =>
+                        setFormData({ ...formData, title: e.target.value })
+                      }
+                      placeholder="Ex: Anunț important pentru membri"
+                      required
+                    />
+                  </div>
 
-              <div className="grid gap-2">
-                <Label htmlFor="excerpt">Rezumat (opțional)</Label>
-                <Textarea
-                  id="excerpt"
-                  value={formData.excerpt}
-                  onChange={(e) =>
-                    setFormData({ ...formData, excerpt: e.target.value })
-                  }
-                  rows={2}
-                  placeholder="Scurtă descriere care va apărea în lista de noutăți..."
-                />
-              </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="excerpt">Rezumat (opțional)</Label>
+                    <Textarea
+                      id="excerpt"
+                      value={formData.excerpt}
+                      onChange={(e) =>
+                        setFormData({ ...formData, excerpt: e.target.value })
+                      }
+                      rows={2}
+                      placeholder="Scurtă descriere care va apărea în lista de noutăți..."
+                    />
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="en" className="space-y-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="titleEn">Title (English)</Label>
+                    <Input
+                      id="titleEn"
+                      value={formData.titleEn}
+                      onChange={(e) =>
+                        setFormData({ ...formData, titleEn: e.target.value })
+                      }
+                      placeholder="Ex: Important announcement for members"
+                    />
+                  </div>
+
+                  <div className="grid gap-2">
+                    <Label htmlFor="excerptEn">Excerpt (English)</Label>
+                    <Textarea
+                      id="excerptEn"
+                      value={formData.excerptEn}
+                      onChange={(e) =>
+                        setFormData({ ...formData, excerptEn: e.target.value })
+                      }
+                      rows={2}
+                      placeholder="Short description that will appear in the news list..."
+                    />
+                  </div>
+                </TabsContent>
+              </Tabs>
 
               <div className="grid gap-2">
                 <Label htmlFor="linkType">Tip Link *</Label>
@@ -593,13 +646,34 @@ export default function AdminNewsPage() {
                   <p className="text-sm text-muted-foreground mb-2">
                     Această noutate va avea propria pagină. Scrie conținutul complet aici.
                   </p>
-                  <RichTextEditor
-                    content={formData.content}
-                    onChange={(html) =>
-                      setFormData({ ...formData, content: html })
-                    }
-                    placeholder="Scrie conținutul complet al noutății..."
-                  />
+                  <Tabs defaultValue="content-ro" className="w-full">
+                    <TabsList className="grid w-full grid-cols-2 mb-4">
+                      <TabsTrigger value="content-ro" className="flex items-center gap-2">
+                        <span>🇷🇴</span> Conținut RO
+                      </TabsTrigger>
+                      <TabsTrigger value="content-en" className="flex items-center gap-2">
+                        <span>🇬🇧</span> Content EN
+                      </TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="content-ro">
+                      <RichTextEditor
+                        content={formData.content}
+                        onChange={(html) =>
+                          setFormData({ ...formData, content: html })
+                        }
+                        placeholder="Scrie conținutul complet al noutății..."
+                      />
+                    </TabsContent>
+                    <TabsContent value="content-en">
+                      <RichTextEditor
+                        content={formData.contentEn}
+                        onChange={(html) =>
+                          setFormData({ ...formData, contentEn: html })
+                        }
+                        placeholder="Write the full content of the news..."
+                      />
+                    </TabsContent>
+                  </Tabs>
                 </div>
               )}
 

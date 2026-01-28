@@ -29,51 +29,54 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/lib/language-context";
+import { LanguageSelector } from "@/components/LanguageSelector";
 
-const navigationItems = [
+// Navigation items with translation keys
+const getNavigationItems = (t: (key: string) => string) => [
   {
-    title: "Acasă",
+    title: t("nav.home"),
     href: "/",
     icon: Home,
   },
   {
-    title: "Despre",
+    title: t("nav.about"),
     icon: SquareMenu,
     items: [
       {
-        title: "Misiune",
+        title: t("nav.mission"),
         href: "/about/mission",
         icon: Target,
       },
       {
-        title: "Membri",
+        title: t("nav.members"),
         href: "/about/members",
         icon: UserPlus,
       },
       {
-        title: "Parteneri",
+        title: t("nav.partners"),
         href: "/about/partners",
         icon: Handshake,
       },
     ],
   },
   {
-    title: "Proiecte",
+    title: t("nav.projects"),
     href: "/projects",
     icon: FolderKanban,
   },
   {
-    title: "Evenimente",
+    title: t("nav.events"),
     href: "/events",
     icon: Calendar,
   },
   {
-    title: "Resurse",
+    title: t("nav.resources"),
     href: "/resources",
     icon: BookOpen,
   },
   {
-    title: "Contact",
+    title: t("nav.contact"),
     href: "/contact",
     icon: Mail,
   },
@@ -82,9 +85,12 @@ const navigationItems = [
 export function Header() {
   const pathname = usePathname();
   const router = useRouter();
+  const { t } = useLanguage();
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
+  const navigationItems = getNavigationItems(t);
 
   useEffect(() => {
     const checkAdminSession = async () => {
@@ -210,7 +216,7 @@ export function Header() {
                   className="flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-md bg-red-500 hover:bg-red-600 text-white transition-colors"
                 >
                   <ShieldCheck className="size-4" />
-                  <span>Admin</span>
+                  <span>{t("nav.admin")}</span>
                 </Link>
                 <Button
                   variant="ghost"
@@ -219,10 +225,15 @@ export function Header() {
                   className="flex items-center gap-1 text-muted-foreground hover:text-foreground"
                 >
                   <LogOut className="size-4" />
-                  <span>Logout</span>
+                  <span>{t("nav.logout")}</span>
                 </Button>
               </>
             )}
+
+            {/* Language Selector */}
+            <div className="ml-2 border-l pl-2">
+              <LanguageSelector variant="desktop" />
+            </div>
           </nav>
 
           {/* Mobile menu button */}
@@ -310,7 +321,7 @@ export function Header() {
                     className="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md bg-red-500 hover:bg-red-600 text-white transition-colors"
                   >
                     <ShieldCheck className="size-4" />
-                    <span>Admin</span>
+                    <span>{t("nav.admin")}</span>
                   </Link>
                   <button
                     onClick={() => {
@@ -320,10 +331,15 @@ export function Header() {
                     className="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
                   >
                     <LogOut className="size-4" />
-                    <span>Logout</span>
+                    <span>{t("nav.logout")}</span>
                   </button>
                 </>
               )}
+
+              {/* Language Selector - Mobile */}
+              <div className="mt-4 pt-4 border-t">
+                <LanguageSelector variant="mobile" />
+              </div>
             </nav>
           </div>
         )}

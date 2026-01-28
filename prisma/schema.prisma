@@ -5,7 +5,7 @@ generator client {
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  // directUrl = env("DIRECT_URL")
 }
 
 model Admin {
@@ -32,16 +32,18 @@ model Session {
 }
 
 model Partner {
-  id           String   @id @default(cuid())
-  name         String
-  description  String?
-  logoUrl      String?
-  type         String
-  websiteUrl   String?
-  displayOrder Int      @default(0)
-  isActive     Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id            String   @id @default(cuid())
+  name          String
+  nameEn        String?  // English translation
+  description   String?
+  descriptionEn String?  // English translation
+  logoUrl       String?
+  type          String
+  websiteUrl    String?
+  displayOrder  Int      @default(0)
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   @@index([type])
   @@index([displayOrder])
@@ -49,19 +51,22 @@ model Partner {
 }
 
 model Project {
-  id                  String    @id @default(cuid())
-  title               String
-  slug                String?   @unique
-  shortDescription    String
-  detailedDescription String?
-  status              String?
-  startDate           DateTime?
-  endDate             DateTime?
-  displayOrder        Int       @default(0)
-  isActive            Boolean   @default(true)
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
-  news                News[]
+  id                    String    @id @default(cuid())
+  title                 String
+  titleEn               String?   // English translation
+  slug                  String?   @unique
+  shortDescription      String
+  shortDescriptionEn    String?   // English translation
+  detailedDescription   String?
+  detailedDescriptionEn String?   // English translation
+  status                String?
+  startDate             DateTime?
+  endDate               DateTime?
+  displayOrder          Int       @default(0)
+  isActive              Boolean   @default(true)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  news                  News[]
 
   @@index([status])
   @@index([displayOrder])
@@ -69,23 +74,28 @@ model Project {
 }
 
 model Event {
-  id                  String              @id @default(cuid())
-  title               String
-  slug                String?             @unique
-  type                String?
-  shortDescription    String?
-  detailedDescription String?
-  imageUrl            String?
-  eventDate           DateTime?
-  dateText            String?             // For date ranges like "Iunie - August 2025"
-  location            String?
-  displayOrder        Int                 @default(0)
-  isActive            Boolean             @default(true)
-  createdAt           DateTime            @default(now())
-  updatedAt           DateTime            @updatedAt
-  registrations       EventRegistration[]
-  news                News[]
-  sections            EventSection[]
+  id                    String              @id @default(cuid())
+  title                 String
+  titleEn               String?             // English translation
+  slug                  String?             @unique
+  type                  String?
+  shortDescription      String?
+  shortDescriptionEn    String?             // English translation
+  detailedDescription   String?
+  detailedDescriptionEn String?             // English translation
+  imageUrl              String?
+  eventDate             DateTime?
+  dateText              String?             // For date ranges like "Iunie - August 2025"
+  dateTextEn            String?             // English translation (e.g., "June - August 2025")
+  location              String?
+  locationEn            String?             // English translation
+  displayOrder          Int                 @default(0)
+  isActive              Boolean             @default(true)
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  registrations         EventRegistration[]
+  news                  News[]
+  sections              EventSection[]
 
   @@index([eventDate])
   @@index([displayOrder])
@@ -96,7 +106,9 @@ model EventSection {
   id              String              @id @default(cuid())
   eventId         String
   title           String?             // Optional section title (e.g., "Course Description", "Programme")
+  titleEn         String?             // English translation
   content         String?             // Rich text content
+  contentEn       String?             // English translation
   backgroundColor String?             // Background color for the section (e.g., "white", "primary", "muted")
   displayOrder    Int                 @default(0)
   createdAt       DateTime            @default(now())
@@ -136,17 +148,19 @@ model EventRegistration {
 }
 
 model Resource {
-  id          String         @id @default(cuid())
-  title       String
-  slug        String?        @unique
-  description String
-  url         String?
-  type        String
-  isActive    Boolean        @default(true)
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-  news        News[]
-  files       ResourceFile[]
+  id            String         @id @default(cuid())
+  title         String
+  titleEn       String?        // English translation
+  slug          String?        @unique
+  description   String
+  descriptionEn String?        // English translation
+  url           String?
+  type          String
+  isActive      Boolean        @default(true)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  news          News[]
+  files         ResourceFile[]
 
   @@index([type])
   @@map("resources")
@@ -184,6 +198,7 @@ model CarouselImage {
   id           String   @id @default(cuid())
   imageUrl     String
   alt          String
+  altEn        String?  // English translation
   displayOrder Int      @default(0)
   isActive     Boolean  @default(true)
   createdAt    DateTime @default(now())
@@ -197,8 +212,11 @@ model CarouselImage {
 model News {
   id           String    @id @default(cuid())
   title        String
+  titleEn      String?   // English translation
   excerpt      String?
+  excerptEn    String?   // English translation
   content      String?
+  contentEn    String?   // English translation
   linkType     String
   linkUrl      String?
   eventId      String?
@@ -224,6 +242,7 @@ model MembershipApplication {
   firstName                String
   lastName                 String
   email                    String
+  country                  String?
   professionalGrade        String
   otherProfessionalGrade   String?
   medicalSpecialty         String

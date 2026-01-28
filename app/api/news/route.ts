@@ -51,8 +51,11 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { 
       title, 
+      titleEn,
       excerpt, 
+      excerptEn,
       content, 
+      contentEn,
       linkType, 
       linkUrl, 
       eventId, 
@@ -109,8 +112,11 @@ export async function POST(request: NextRequest) {
     const newsItem = await prisma.news.create({
       data: {
         title,
+        titleEn: titleEn || null,
         excerpt: excerpt || null,
+        excerptEn: excerptEn || null,
         content: content || null,
+        contentEn: contentEn || null,
         linkType,
         linkUrl: linkUrl || null,
         eventId: linkType === 'event' ? eventId : null,
@@ -155,8 +161,11 @@ export async function PUT(request: NextRequest) {
     const { 
       id,
       title, 
+      titleEn,
       excerpt, 
+      excerptEn,
       content, 
+      contentEn,
       linkType, 
       linkUrl, 
       eventId, 
@@ -175,8 +184,11 @@ export async function PUT(request: NextRequest) {
     const updateData: Record<string, unknown> = {};
     
     if (title !== undefined) updateData.title = title;
+    if (titleEn !== undefined) updateData.titleEn = titleEn;
     if (excerpt !== undefined) updateData.excerpt = excerpt;
+    if (excerptEn !== undefined) updateData.excerptEn = excerptEn;
     if (content !== undefined) updateData.content = content;
+    if (contentEn !== undefined) updateData.contentEn = contentEn;
     if (linkType !== undefined) updateData.linkType = linkType;
     if (linkUrl !== undefined) updateData.linkUrl = linkUrl;
     if (displayOrder !== undefined) updateData.displayOrder = displayOrder;

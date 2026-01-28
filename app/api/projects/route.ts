@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { title, shortDescription, detailedDescription, status, startDate, endDate, displayOrder, isActive } = body;
+    const { title, titleEn, shortDescription, shortDescriptionEn, detailedDescription, detailedDescriptionEn, status, startDate, endDate, displayOrder, isActive } = body;
 
     // Validation
     if (!title || !shortDescription) {
@@ -86,9 +86,12 @@ export async function POST(request: NextRequest) {
     const project = await prisma.project.create({
       data: {
         title,
+        titleEn: titleEn || null,
         slug,
         shortDescription,
+        shortDescriptionEn: shortDescriptionEn || null,
         detailedDescription: detailedDescription || null,
+        detailedDescriptionEn: detailedDescriptionEn || null,
         status: status || null,
         startDate: startDate ? new Date(startDate) : null,
         endDate: endDate ? new Date(endDate) : null,
@@ -122,7 +125,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { id, title, shortDescription, detailedDescription, status, startDate, endDate, displayOrder, isActive } = body;
+    const { id, title, titleEn, shortDescription, shortDescriptionEn, detailedDescription, detailedDescriptionEn, status, startDate, endDate, displayOrder, isActive } = body;
 
     if (!id) {
       return NextResponse.json({ error: 'Project ID is required' }, { status: 400 });
@@ -138,9 +141,12 @@ export async function PUT(request: NextRequest) {
       where: { id },
       data: {
         ...(title && { title }),
+        ...(titleEn !== undefined && { titleEn }),
         ...(slug && { slug }),
         ...(shortDescription !== undefined && { shortDescription }),
+        ...(shortDescriptionEn !== undefined && { shortDescriptionEn }),
         ...(detailedDescription !== undefined && { detailedDescription }),
+        ...(detailedDescriptionEn !== undefined && { detailedDescriptionEn }),
         ...(status !== undefined && { status }),
         ...(startDate !== undefined && { startDate: startDate ? new Date(startDate) : null }),
         ...(endDate !== undefined && { endDate: endDate ? new Date(endDate) : null }),

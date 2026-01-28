@@ -15,7 +15,9 @@ interface EventSectionFile {
 interface EventSectionInput {
   id?: string;
   title?: string;
+  titleEn?: string;
   content?: string;
+  contentEn?: string;
   backgroundColor?: string;
   displayOrder: number;
   files?: EventSectionFile[];
@@ -90,7 +92,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { title, type, shortDescription, detailedDescription, imageUrl, eventDate, dateText, location, displayOrder, sections, isActive } = body;
+    const { title, titleEn, type, shortDescription, shortDescriptionEn, detailedDescription, detailedDescriptionEn, imageUrl, eventDate, dateText, dateTextEn, location, locationEn, displayOrder, sections, isActive } = body;
 
     // Validation
     if (!title || !type || !shortDescription) {
@@ -106,20 +108,27 @@ export async function POST(request: NextRequest) {
     const event = await prisma.event.create({
       data: {
         title,
+        titleEn: titleEn || null,
         slug,
         type,
         shortDescription,
+        shortDescriptionEn: shortDescriptionEn || null,
         detailedDescription: detailedDescription || null,
+        detailedDescriptionEn: detailedDescriptionEn || null,
         imageUrl: imageUrl || null,
         eventDate: eventDate ? new Date(eventDate) : null,
         dateText: dateText || null,
+        dateTextEn: dateTextEn || null,
         location: location || null,
+        locationEn: locationEn || null,
         displayOrder: displayOrder || 0,
         isActive: isActive !== undefined ? isActive : true,
         sections: sections && sections.length > 0 ? {
           create: sections.map((section: EventSectionInput) => ({
             title: section.title || null,
+            titleEn: section.titleEn || null,
             content: section.content || null,
+            contentEn: section.contentEn || null,
             backgroundColor: section.backgroundColor || null,
             displayOrder: section.displayOrder || 0,
             files: section.files && section.files.length > 0 ? {
@@ -166,7 +175,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { id, title, type, shortDescription, detailedDescription, imageUrl, eventDate, dateText, location, displayOrder, sections, isActive } = body;
+    const { id, title, titleEn, type, shortDescription, shortDescriptionEn, detailedDescription, detailedDescriptionEn, imageUrl, eventDate, dateText, dateTextEn, location, locationEn, displayOrder, sections, isActive } = body;
 
     if (!id) {
       return NextResponse.json({ error: 'Event ID is required' }, { status: 400 });
@@ -233,7 +242,9 @@ export async function PUT(request: NextRequest) {
             where: { id: section.id },
             data: {
               title: section.title || null,
+              titleEn: section.titleEn || null,
               content: section.content || null,
+              contentEn: section.contentEn || null,
               backgroundColor: section.backgroundColor || null,
               displayOrder: section.displayOrder || 0,
             },
@@ -258,7 +269,9 @@ export async function PUT(request: NextRequest) {
             data: {
               eventId: id,
               title: section.title || null,
+              titleEn: section.titleEn || null,
               content: section.content || null,
+              contentEn: section.contentEn || null,
               backgroundColor: section.backgroundColor || null,
               displayOrder: section.displayOrder || 0,
               files: section.files && section.files.length > 0 ? {
@@ -279,14 +292,19 @@ export async function PUT(request: NextRequest) {
       where: { id },
       data: {
         ...(title && { title }),
+        ...(titleEn !== undefined && { titleEn }),
         ...(slug && { slug }),
         ...(type && { type }),
         ...(shortDescription !== undefined && { shortDescription }),
+        ...(shortDescriptionEn !== undefined && { shortDescriptionEn }),
         ...(detailedDescription !== undefined && { detailedDescription }),
+        ...(detailedDescriptionEn !== undefined && { detailedDescriptionEn }),
         ...(imageUrl !== undefined && { imageUrl }),
         ...(eventDate !== undefined && { eventDate: eventDate ? new Date(eventDate) : null }),
         ...(dateText !== undefined && { dateText: dateText || null }),
+        ...(dateTextEn !== undefined && { dateTextEn: dateTextEn || null }),
         ...(location !== undefined && { location: location || null }),
+        ...(locationEn !== undefined && { locationEn: locationEn || null }),
         ...(displayOrder !== undefined && { displayOrder }),
         ...(isActive !== undefined && { isActive }),
       },
