@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 interface NewsItem {
   id: string;
   title: string;
+  slug?: string | null;
   excerpt: string | null;
   linkType: string;
   linkUrl: string | null;
@@ -33,7 +34,7 @@ function getNewsLink(newsItem: NewsItem): string {
       return newsItem.linkUrl || "#";
     case "internal":
     default:
-      return `/noutati/${newsItem.id}`;
+      return `/noutati/${newsItem.slug || newsItem.id}`;
   }
 }
 

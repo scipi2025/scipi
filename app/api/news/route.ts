@@ -1,12 +1,53 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { validateSession } from '@/lib/auth';
+import { generateSlug } from '@/lib/utils';
 
-// GET /api/news - List all news items
+// Helper function to generate unique slug for news
+async function generateUniqueNewsSlug(title: string, excludeId?: string): Promise<string> {
+  const baseSlug = generateSlug(title);
+  let slug = baseSlug;
+  let counter = 1;
+
+  while (true) {
+    const existing = await prisma.news.findFirst({
+      where: {
+        slug,
+        ...(excludeId ? { NOT: { id: excludeId } } : {}),
+      },
+    });
+    if (!existing) break;
+    slug = `${baseSlug}-${counter}`;
+    counter++;
+  }
+
+  return slug;
+}
+
+// GET /api/news - List all news items or get single by slug
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const activeOnly = searchParams.get('active') === 'true';
+    const slug = searchParams.get('slug');
+
+    // If slug is provided, return single news item
+    if (slug) {
+      const newsItem = await prisma.news.findUnique({
+        where: { slug },
+        include: {
+          event: { select: { id: true, slug: true, title: true } },
+          project: { select: { id: true, slug: true, title: true } },
+          resource: { select: { id: true, slug: true, title: true } },
+        },
+      });
+
+      if (!newsItem) {
+        return NextResponse.json({ error: 'News not found' }, { status: 404 });
+      }
+
+      return NextResponse.json(newsItem);
+    }
 
     const news = await prisma.news.findMany({
       where: activeOnly ? { isActive: true } : undefined,
@@ -109,10 +150,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Generate unique slug for internal news
+    const slug = linkType === 'internal' ? await generateUniqueNewsSlug(title) : null;
+
     const newsItem = await prisma.news.create({
       data: {
         title,
         titleEn: titleEn || null,
+        slug,
         excerpt: excerpt || null,
         excerptEn: excerptEn || null,
         content: content || null,
@@ -180,6 +225,12 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'News ID is required' }, { status: 400 });
     }
 
+    // Get current news item to check if we need to update slug
+    const currentNews = await prisma.news.findUnique({ where: { id } });
+    if (!currentNews) {
+      return NextResponse.json({ error: 'News not found' }, { status: 404 });
+    }
+
     // Build update data
     const updateData: Record<string, unknown> = {};
     
@@ -200,6 +251,21 @@ export async function PUT(request: NextRequest) {
       updateData.eventId = linkType === 'event' ? eventId : null;
       updateData.projectId = linkType === 'project' ? projectId : null;
       updateData.resourceId = linkType === 'resource' ? resourceId : null;
+    }
+
+    // Handle slug updates
+    const effectiveLinkType = linkType ?? currentNews.linkType;
+    const effectiveTitle = title ?? currentNews.title;
+    
+    // Generate slug if switching to internal or if title changed for internal news
+    if (effectiveLinkType === 'internal') {
+      // Only regenerate if title changed or switching to internal
+      if (title !== undefined || (linkType === 'internal' && currentNews.linkType !== 'internal')) {
+        updateData.slug = await generateUniqueNewsSlug(effectiveTitle, id);
+      }
+    } else {
+      // Clear slug for non-internal news
+      updateData.slug = null;
     }
 
     const newsItem = await prisma.news.update({

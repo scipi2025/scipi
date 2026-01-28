@@ -248,6 +248,7 @@ model News {
   id           String    @id @default(cuid())
   title        String
   titleEn      String?   // English translation
+  slug         String?   @unique // URL-friendly slug
   excerpt      String?
   excerptEn    String?   // English translation
   content      String?

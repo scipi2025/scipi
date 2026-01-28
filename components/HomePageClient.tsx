@@ -21,6 +21,7 @@ interface NewsItem {
   id: string;
   title: string;
   titleEn?: string | null;
+  slug?: string | null;
   excerpt: string | null;
   excerptEn?: string | null;
   linkType: string;
@@ -51,7 +52,7 @@ function getNewsLink(newsItem: NewsItem): string {
       return newsItem.linkUrl || "#";
     case "internal":
     default:
-      return `/noutati/${newsItem.id}`;
+      return `/noutati/${newsItem.slug || newsItem.id}`;
   }
 }
 

@@ -34,6 +34,7 @@ interface NewsItem {
   id: string;
   title: string;
   titleEn: string | null;
+  slug: string | null;
   excerpt: string | null;
   excerptEn: string | null;
   content: string | null;
@@ -304,7 +305,7 @@ export default function AdminNewsPage() {
       case "external":
         return newsItem.linkUrl || "-";
       case "internal":
-        return "/noutati/" + newsItem.id;
+        return "/noutati/" + (newsItem.slug || newsItem.id);
       default:
         return "-";
     }

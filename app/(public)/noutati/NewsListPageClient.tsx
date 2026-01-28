@@ -13,6 +13,7 @@ interface NewsItem {
   id: string;
   title: string;
   titleEn?: string | null;
+  slug?: string | null;
   excerpt?: string | null;
   excerptEn?: string | null;
   linkType: string;
@@ -43,7 +44,7 @@ export function NewsListPageClient({ news }: NewsListPageClientProps) {
         return newsItem.linkUrl || "#";
       case "internal":
       default:
-        return `/noutati/${newsItem.id}`;
+        return `/noutati/${newsItem.slug || newsItem.id}`;
     }
   }
 
