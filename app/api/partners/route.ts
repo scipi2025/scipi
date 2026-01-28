@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { name, description, logoUrl, type, websiteUrl, displayOrder, isActive } = body;
+    const { name, nameEn, description, descriptionEn, logoUrl, type, websiteUrl, displayOrder, isActive } = body;
 
     // Validation
     if (!name || !type) {
@@ -58,7 +58,9 @@ export async function POST(request: NextRequest) {
     const partner = await prisma.partner.create({
       data: {
         name,
+        nameEn: nameEn || null,
         description: description || null,
+        descriptionEn: descriptionEn || null,
         logoUrl,
         type,
         websiteUrl: websiteUrl || null,
@@ -92,7 +94,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { id, name, description, logoUrl, type, websiteUrl, displayOrder, isActive } = body;
+    const { id, name, nameEn, description, descriptionEn, logoUrl, type, websiteUrl, displayOrder, isActive } = body;
 
     if (!id) {
       return NextResponse.json({ error: 'Partner ID is required' }, { status: 400 });
@@ -102,7 +104,9 @@ export async function PUT(request: NextRequest) {
       where: { id },
       data: {
         ...(name && { name }),
+        ...(nameEn !== undefined && { nameEn }),
         ...(description !== undefined && { description }),
+        ...(descriptionEn !== undefined && { descriptionEn }),
         ...(logoUrl !== undefined && { logoUrl }), // Allow empty string to clear logo
         ...(type && { type }),
         ...(websiteUrl !== undefined && { websiteUrl }),

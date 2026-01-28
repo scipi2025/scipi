@@ -37,7 +37,9 @@ import { AdminHeader } from "@/components/admin/admin-header";
 interface Partner {
   id: string;
   name: string;
+  nameEn: string | null;
   description: string | null;
+  descriptionEn: string | null;
   logoUrl: string;
   type: string;
   websiteUrl: string | null;
@@ -58,7 +60,9 @@ export default function PartnersPage() {
 
   const [formData, setFormData] = useState({
     name: "",
+    nameEn: "",
     description: "",
+    descriptionEn: "",
     logoUrl: "",
     type: "institutional",
     websiteUrl: "",
@@ -139,7 +143,9 @@ export default function PartnersPage() {
     setEditingPartner(partner);
     setFormData({
       name: partner.name,
+      nameEn: partner.nameEn || "",
       description: partner.description || "",
+      descriptionEn: partner.descriptionEn || "",
       logoUrl: partner.logoUrl,
       type: partner.type,
       websiteUrl: partner.websiteUrl || "",
@@ -158,7 +164,9 @@ export default function PartnersPage() {
     setEditingPartner(null);
     setFormData({
       name: "",
+      nameEn: "",
       description: "",
+      descriptionEn: "",
       logoUrl: "",
       type: "institutional",
       websiteUrl: "",
@@ -263,7 +271,16 @@ export default function PartnersPage() {
                         </div>
                       )}
                     </TableCell>
-                    <TableCell className="font-medium">{partner.name}</TableCell>
+                    <TableCell className="font-medium">
+                      <div>
+                        {partner.name}
+                        {partner.nameEn && (
+                          <span className="text-xs text-muted-foreground ml-2">
+                            (EN: {partner.nameEn})
+                          </span>
+                        )}
+                      </div>
+                    </TableCell>
                     <TableCell>
                       <Badge variant="outline">{getTypeLabel(partner.type)}</Badge>
                     </TableCell>
@@ -316,46 +333,89 @@ export default function PartnersPage() {
 
       {/* Add/Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {editingPartner ? "Editează Partener" : "Adaugă Partener"}
             </DialogTitle>
             <DialogDescription>
-              Completează informațiile partenerului
+              Completează informațiile partenerului în română și engleză
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit}>
             <div className="grid gap-4 py-4">
-              <div className="grid gap-2">
-                <Label htmlFor="name">Nume</Label>
-                <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
-                  required
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="description">Descriere (opțional)</Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
-                  placeholder="Scurtă descriere a partenerului..."
-                  rows={3}
-                />
-              </div>
+              {/* Language Tabs for Name and Description */}
+              <Tabs defaultValue="ro" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 mb-4">
+                  <TabsTrigger value="ro" className="flex items-center gap-2">
+                    <span>🇷🇴</span> Română
+                  </TabsTrigger>
+                  <TabsTrigger value="en" className="flex items-center gap-2">
+                    <span>🇬🇧</span> English
+                  </TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="ro" className="space-y-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="name">Nume Partener *</Label>
+                    <Input
+                      id="name"
+                      value={formData.name}
+                      onChange={(e) =>
+                        setFormData({ ...formData, name: e.target.value })
+                      }
+                      placeholder="Ex: Universitatea de Medicină..."
+                      required
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="description">Descriere (opțional)</Label>
+                    <Textarea
+                      id="description"
+                      value={formData.description}
+                      onChange={(e) =>
+                        setFormData({ ...formData, description: e.target.value })
+                      }
+                      placeholder="Scurtă descriere a partenerului..."
+                      rows={3}
+                    />
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="en" className="space-y-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="nameEn">Partner Name (English)</Label>
+                    <Input
+                      id="nameEn"
+                      value={formData.nameEn}
+                      onChange={(e) =>
+                        setFormData({ ...formData, nameEn: e.target.value })
+                      }
+                      placeholder="Ex: University of Medicine..."
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="descriptionEn">Description (English)</Label>
+                    <Textarea
+                      id="descriptionEn"
+                      value={formData.descriptionEn}
+                      onChange={(e) =>
+                        setFormData({ ...formData, descriptionEn: e.target.value })
+                      }
+                      placeholder="Short description of the partner..."
+                      rows={3}
+                    />
+                  </div>
+                </TabsContent>
+              </Tabs>
+
               <ImageUpload
                 currentImageUrl={formData.logoUrl}
                 onImageUploaded={(url) => setFormData({ ...formData, logoUrl: url })}
                 label="Logo Partener (opțional)"
                 type="partner"
               />
+              
               <div className="grid gap-2">
                 <Label htmlFor="type">Tip</Label>
                 <Select
@@ -374,6 +434,7 @@ export default function PartnersPage() {
                   </SelectContent>
                 </Select>
               </div>
+              
               <div className="grid gap-2">
                 <Label htmlFor="websiteUrl">Website (opțional)</Label>
                 <Input
@@ -382,8 +443,10 @@ export default function PartnersPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, websiteUrl: e.target.value })
                   }
+                  placeholder="https://..."
                 />
               </div>
+              
               <div className="grid gap-2">
                 <Label htmlFor="displayOrder">Ordine Afișare</Label>
                 <Input
@@ -398,6 +461,7 @@ export default function PartnersPage() {
                   }
                 />
               </div>
+              
               <div className="flex items-center gap-2">
                 <input
                   type="checkbox"
@@ -408,7 +472,7 @@ export default function PartnersPage() {
                   }
                   className="size-4"
                 />
-                <Label htmlFor="isActive">Activ</Label>
+                <Label htmlFor="isActive">Activ pe site</Label>
               </div>
             </div>
             {formError && (

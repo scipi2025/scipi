@@ -132,14 +132,9 @@ export function HomePageClient({ carouselImages, news }: HomePageClientProps) {
                   <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-primary/10 shadow-sm">
                     <Sparkles className="size-6 text-primary" />
                   </div>
-                  <div>
-                    <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
-                      {t("home.news.title")}
-                    </h2>
-                    <p className="text-sm text-muted-foreground">
-                      {t("home.news.subtitle")}
-                    </p>
-                  </div>
+                  <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
+                    {t("home.news.title")}
+                  </h2>
                 </div>
 
                 {/* News items - with more spacing */}
