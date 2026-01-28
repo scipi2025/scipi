@@ -14,6 +14,7 @@ interface CarouselImage {
   imageUrl: string;
   alt: string;
   altEn?: string | null;
+  displayOrder?: number;
 }
 
 interface NewsItem {

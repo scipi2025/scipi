@@ -8,7 +8,8 @@ interface CarouselImage {
   id: string;
   imageUrl: string;
   alt: string;
-  displayOrder: number;
+  altEn?: string | null;
+  displayOrder?: number;
 }
 
 // Default images used as fallback when no images in database

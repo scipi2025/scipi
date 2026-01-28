@@ -620,14 +620,15 @@ export function useLanguage() {
 }
 
 // Helper function to get translated content from dynamic items
-export function getLocalizedContent<T extends Record<string, unknown>>(
-  item: T,
+export function getLocalizedContent(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  item: any,
   field: string,
   language: Language,
 ): string {
-  const enField = `${field}En` as keyof T;
+  const enField = `${field}En`;
   if (language === "en" && item[enField]) {
     return item[enField] as string;
   }
-  return (item[field as keyof T] as string) || "";
+  return (item[field] as string) || "";
 }
