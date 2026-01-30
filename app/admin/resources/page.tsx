@@ -65,7 +65,9 @@ export default function ResourcesPage() {
 
   const [formData, setFormData] = useState({
     title: "",
+    titleEn: "",
     description: "",
+    descriptionEn: "",
     url: "",
     type: "guide",
     isActive: true,
@@ -201,7 +203,9 @@ export default function ResourcesPage() {
     setEditingResource(resource);
     setFormData({
       title: resource.title,
+      titleEn: (resource as any).titleEn || "",
       description: resource.description,
+      descriptionEn: (resource as any).descriptionEn || "",
       url: resource.url || "",
       type: resource.type,
       isActive: resource.isActive,
@@ -236,7 +240,9 @@ export default function ResourcesPage() {
     setEditingResource(null);
     setFormData({
       title: "",
+      titleEn: "",
       description: "",
+      descriptionEn: "",
       url: "",
       type: "guide",
       isActive: true,
@@ -406,29 +412,63 @@ export default function ResourcesPage() {
           </DialogHeader>
           <form onSubmit={handleSubmit}>
             <div className="grid gap-4 py-4">
-              <div className="grid gap-2">
-                <Label htmlFor="title">Titlu</Label>
-                <Input
-                  id="title"
-                  value={formData.title}
-                  onChange={(e) =>
-                    setFormData({ ...formData, title: e.target.value })
-                  }
-                  required
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="description">Descriere</Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
-                  rows={4}
-                  required
-                />
-              </div>
+              <Tabs defaultValue="ro" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="ro">Română</TabsTrigger>
+                  <TabsTrigger value="en">English</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="ro" className="space-y-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="title">Titlu</Label>
+                    <Input
+                      id="title"
+                      value={formData.title}
+                      onChange={(e) =>
+                        setFormData({ ...formData, title: e.target.value })
+                      }
+                      required
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="description">Descriere</Label>
+                    <Textarea
+                      id="description"
+                      value={formData.description}
+                      onChange={(e) =>
+                        setFormData({ ...formData, description: e.target.value })
+                      }
+                      rows={4}
+                      required
+                    />
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="en" className="space-y-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="titleEn">Title</Label>
+                    <Input
+                      id="titleEn"
+                      value={formData.titleEn}
+                      onChange={(e) =>
+                        setFormData({ ...formData, titleEn: e.target.value })
+                      }
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="descriptionEn">Description</Label>
+                    <Textarea
+                      id="descriptionEn"
+                      value={formData.descriptionEn}
+                      onChange={(e) =>
+                        setFormData({ ...formData, descriptionEn: e.target.value })
+                      }
+                      rows={4}
+                    />
+                  </div>
+                </TabsContent>
+              </Tabs>
+              
               <div className="grid gap-2">
                 <Label htmlFor="url">URL Extern (opțional dacă încarci fișiere)</Label>
                 <Input

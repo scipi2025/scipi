@@ -3,6 +3,13 @@ import { prisma } from '@/lib/db';
 import { validateSession } from '@/lib/auth';
 import { generateSlug } from '@/lib/utils';
 
+interface UploadedFile {
+  fileName: string;
+  fileUrl: string;
+  fileSize: number;
+  mimeType: string;
+}
+
 // Helper function to generate unique slug for resources
 async function generateUniqueResourceSlug(title: string, excludeId?: string): Promise<string> {
   const baseSlug = generateSlug(title);
@@ -31,7 +38,7 @@ export async function GET(request: NextRequest) {
     const type = searchParams.get('type');
     const isActive = searchParams.get('isActive');
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (type) where.type = type;
     if (isActive !== null && isActive !== undefined) {
       where.isActive = isActive === 'true';
@@ -70,7 +77,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { title, description, url, files, type, isActive } = body;
+    const { title, titleEn, description, descriptionEn, url, files, type, isActive } = body;
 
     // Validation
     if (!title || !description || !type) {
@@ -94,13 +101,15 @@ export async function POST(request: NextRequest) {
     const resource = await prisma.resource.create({
       data: {
         title,
+        titleEn: titleEn || null,
         slug,
         description,
+        descriptionEn: descriptionEn || null,
         url: url || null,
         type,
         isActive: isActive !== undefined ? isActive : true,
         files: files && files.length > 0 ? {
-          create: files.map((file: any) => ({
+          create: files.map((file: UploadedFile) => ({
             fileName: file.fileName,
             fileUrl: file.fileUrl,
             fileSize: file.fileSize,
@@ -138,7 +147,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { id, title, description, url, files, filesToDelete, type, isActive } = body;
+    const { id, title, titleEn, description, descriptionEn, url, files, filesToDelete, type, isActive } = body;
 
     if (!id) {
       return NextResponse.json({ error: 'Resource ID is required' }, { status: 400 });
@@ -164,14 +173,16 @@ export async function PUT(request: NextRequest) {
       where: { id },
       data: {
         ...(title && { title }),
+        ...(titleEn !== undefined && { titleEn }),
         ...(slug && { slug }),
         ...(description && { description }),
+        ...(descriptionEn !== undefined && { descriptionEn }),
         ...(url !== undefined && { url }),
         ...(type && { type }),
         ...(isActive !== undefined && { isActive }),
         ...(files && files.length > 0 && {
           files: {
-            create: files.map((file: any) => ({
+            create: files.map((file: UploadedFile) => ({
               fileName: file.fileName,
               fileUrl: file.fileUrl,
               fileSize: file.fileSize,
