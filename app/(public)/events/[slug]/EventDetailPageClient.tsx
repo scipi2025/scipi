@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar, ArrowLeft, FileText, Download } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { useState } from "react";
 import { useLanguage } from "@/lib/language-context";
 import type { Event, EventSection, EventSectionFile } from "@prisma/client";
 
@@ -69,13 +70,11 @@ interface EventDetailPageClientProps {
 }
 
 export function EventDetailPageClient({ event }: EventDetailPageClientProps) {
-  const { language, t } = useLanguage();
+  const { language } = useLanguage();
+  const [imageAspectRatio, setImageAspectRatio] = useState(16 / 9);
 
   // Get localized content
   const title = language === "en" && event.titleEn ? event.titleEn : event.title;
-  const shortDescription = language === "en" && event.shortDescriptionEn 
-    ? event.shortDescriptionEn 
-    : event.shortDescription;
 
   const getLocalizedSectionContent = (section: EventSection & { files: EventSectionFile[] }) => {
     return {
@@ -141,12 +140,20 @@ export function EventDetailPageClient({ event }: EventDetailPageClientProps) {
 
       {/* Image */}
       {event.imageUrl && (
-        <div className="relative w-full h-104 md:h-160 rounded-lg overflow-hidden bg-muted">
+        <div className="w-full">
           <Image
             src={event.imageUrl}
             alt={title}
-            fill
-            className="object-contain"
+            width={Math.max(1, Math.round(imageAspectRatio * 1000))}
+            height={1000}
+            sizes="100vw"
+            className="w-full h-auto rounded-lg"
+            onLoad={(e) => {
+              const { naturalWidth, naturalHeight } = e.currentTarget;
+              if (naturalWidth > 0 && naturalHeight > 0) {
+                setImageAspectRatio(naturalWidth / naturalHeight);
+              }
+            }}
           />
         </div>
       )}

@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar, ArrowLeft, FileText, Download } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { useState } from "react";
 import { useLanguage } from "@/lib/language-context";
 import type { Project, ProjectSection, ProjectSectionFile } from "@prisma/client";
 
@@ -84,6 +85,7 @@ interface ProjectDetailPageClientProps {
 
 export function ProjectDetailPageClient({ project }: ProjectDetailPageClientProps) {
   const { language } = useLanguage();
+  const [imageAspectRatio, setImageAspectRatio] = useState(16 / 9);
 
   // Get localized content
   const title = language === "en" && project.titleEn ? project.titleEn : project.title;
@@ -174,12 +176,20 @@ export function ProjectDetailPageClient({ project }: ProjectDetailPageClientProp
 
       {/* Image */}
       {project.imageUrl && (
-        <div className="relative w-full h-104 md:h-160 rounded-lg overflow-hidden bg-muted">
+        <div className="w-full">
           <Image
             src={project.imageUrl}
             alt={title}
-            fill
-            className="object-contain"
+            width={Math.max(1, Math.round(imageAspectRatio * 1000))}
+            height={1000}
+            sizes="100vw"
+            className="w-full h-auto rounded-lg"
+            onLoad={(e) => {
+              const { naturalWidth, naturalHeight } = e.currentTarget;
+              if (naturalWidth > 0 && naturalHeight > 0) {
+                setImageAspectRatio(naturalWidth / naturalHeight);
+              }
+            }}
           />
         </div>
       )}
