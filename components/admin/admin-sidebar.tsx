@@ -15,6 +15,7 @@ import {
   UserPlus,
   Image as ImageIcon,
   Newspaper,
+  Send,
 } from "lucide-react";
 import {
   Sidebar,
@@ -77,6 +78,11 @@ const navigationItems = [
     title: "Mesaje Contact",
     href: "/admin/contact-submissions",
     icon: Mail,
+  },
+  {
+    title: "Abonați Newsletter",
+    href: "/admin/newsletter",
+    icon: Send,
   },
   {
     title: "Carousel Imagini",

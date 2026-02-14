@@ -6,6 +6,8 @@ import Link from "@tiptap/extension-link";
 import Underline from "@tiptap/extension-underline";
 import TextAlign from "@tiptap/extension-text-align";
 import Heading from "@tiptap/extension-heading";
+import { TextStyle } from "@tiptap/extension-text-style";
+import { Color } from "@tiptap/extension-color";
 import { ResizableImage } from "./ResizableImage";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,6 +35,16 @@ interface RichTextEditorProps {
   placeholder?: string;
 }
 
+const TEXT_COLORS = [
+  { value: "#111827", label: "Implicit", previewClass: "bg-gray-900" },
+  { value: "#DC2626", label: "Roșu", previewClass: "bg-red-600" },
+  { value: "#EA580C", label: "Portocaliu", previewClass: "bg-orange-600" },
+  { value: "#CA8A04", label: "Galben", previewClass: "bg-yellow-500" },
+  { value: "#16A34A", label: "Verde", previewClass: "bg-green-600" },
+  { value: "#2563EB", label: "Albastru", previewClass: "bg-blue-600" },
+  { value: "#7C3AED", label: "Mov", previewClass: "bg-violet-600" },
+];
+
 export function RichTextEditor({ content, onChange, placeholder }: RichTextEditorProps) {
   const [isUploadingImage, setIsUploadingImage] = useState(false);
 
@@ -59,6 +71,8 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
       Heading.configure({
         levels: [1, 2, 3],
       }),
+      TextStyle,
+      Color,
       Underline,
       TextAlign.configure({
         types: ["heading", "paragraph", "listItem"],
@@ -81,6 +95,7 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
       attributes: {
         class:
           "prose prose-sm max-w-none focus:outline-none min-h-[200px] p-4 border rounded-md",
+        "data-placeholder": placeholder || "",
       },
     },
   });
@@ -239,6 +254,32 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
           title="Aliniere dreapta"
         >
           <AlignRight className="size-4" />
+        </Button>
+
+        <div className="w-px h-8 bg-border mx-1" />
+
+        {/* Text Colors */}
+        {TEXT_COLORS.map((color) => (
+          <Button
+            key={color.value}
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => editor.chain().focus().setColor(color.value).run()}
+            className={editor.isActive("textStyle", { color: color.value }) ? "bg-muted" : ""}
+            title={`Text ${color.label}`}
+          >
+            <span className={`size-3 rounded-full border ${color.previewClass}`} />
+          </Button>
+        ))}
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={() => editor.chain().focus().unsetColor().run()}
+          title="Elimină culoare text"
+        >
+          A
         </Button>
 
         <div className="w-px h-8 bg-border mx-1" />

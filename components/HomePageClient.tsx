@@ -1,8 +1,9 @@
 "use client";
 
+import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, Sparkles, Target } from "lucide-react";
+import { ArrowRight, Mail, Sparkles, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ImageCarousel } from "@/components/ImageCarousel";
 import { ActivitySection } from "@/components/ActivitySection";
@@ -64,19 +65,19 @@ function NewsItemCompact({ newsItem }: { newsItem: NewsItem }) {
   const title = getLocalizedContent(newsItem, "title", language);
 
   const content = (
-    <div className="group flex items-center gap-4 py-5 px-5 rounded-xl bg-card border-2 border-border/60 hover:border-primary/50 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 cursor-pointer">
+    <div className="group flex items-center gap-3 py-3 px-4 rounded-lg bg-card border border-border/60 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300 cursor-pointer">
       {/* Decorative dot with glow */}
       <div className="shrink-0">
-        <div className="w-3 h-3 rounded-full bg-gradient-to-br from-primary to-primary/60 group-hover:scale-125 transition-transform duration-300 shadow-md shadow-primary/40" />
+        <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-br from-primary to-primary/60 group-hover:scale-125 transition-transform duration-300 shadow-md shadow-primary/40" />
       </div>
 
       {/* Title */}
-      <h3 className="font-semibold text-base md:text-lg group-hover:text-primary transition-colors duration-300 line-clamp-2 flex-1">
+      <h3 className="font-semibold text-sm md:text-base group-hover:text-primary transition-colors duration-300 line-clamp-2 flex-1">
         {title}
       </h3>
 
       {/* Arrow */}
-      <ArrowRight className="shrink-0 size-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all duration-300" />
+      <ArrowRight className="shrink-0 size-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all duration-300" />
     </div>
   );
 
@@ -89,6 +90,113 @@ function NewsItemCompact({ newsItem }: { newsItem: NewsItem }) {
   }
 
   return <Link href={link}>{content}</Link>;
+}
+
+function NewsletterSection() {
+  const { t } = useLanguage();
+  const [email, setEmail] = React.useState("");
+  const [status, setStatus] = React.useState<
+    "idle" | "loading" | "success" | "error"
+  >("idle");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+
+    setStatus("loading");
+
+    // Run API call and a minimum 1.2s delay in parallel
+    const minDelay = new Promise((r) => setTimeout(r, 1200));
+
+    try {
+      const [res] = await Promise.all([
+        fetch("/api/newsletter", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        }),
+        minDelay,
+      ]);
+      if (res.ok) {
+        setStatus("success");
+        setEmail("");
+      } else {
+        setStatus("error");
+      }
+    } catch {
+      await minDelay;
+      setStatus("error");
+    }
+  };
+
+  return (
+    <div className="flex flex-col items-center text-center space-y-4 p-6 md:p-8">
+      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-primary/10 shadow-sm">
+        <Mail className="size-5 text-primary" />
+      </div>
+
+      <div className="space-y-1.5">
+        <h2 className="text-xl md:text-2xl font-bold tracking-tight">
+          {t("home.newsletter.title")}
+        </h2>
+        <p className="max-w-[500px] text-muted-foreground text-sm md:text-base leading-relaxed">
+          {t("home.newsletter.text")}
+        </p>
+      </div>
+
+      {status === "success" ? (
+        <div className="flex items-center gap-2 text-green-600 font-medium bg-green-50 px-5 py-2.5 rounded-lg text-sm">
+          <svg
+            className="size-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M5 13l4 4L19 7"
+            />
+          </svg>
+          {t("home.newsletter.success")}
+        </div>
+      ) : (
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col sm:flex-row gap-2 w-full max-w-sm"
+        >
+          <input
+            type="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder={t("home.newsletter.placeholder")}
+            className="flex-1 h-10 px-3 rounded-lg border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
+          />
+          <Button
+            type="submit"
+            size="sm"
+            disabled={status === "loading"}
+            className="h-10 rounded-lg px-4 text-sm"
+          >
+            {status === "loading" ? (
+              <div className="size-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            ) : (
+              <>
+                <Mail className="size-3.5 mr-1.5" />
+                {t("home.newsletter.subscribe")}
+              </>
+            )}
+          </Button>
+        </form>
+      )}
+
+      <p className="text-xs text-muted-foreground">
+        {t("home.newsletter.privacy")}
+      </p>
+    </div>
+  );
 }
 
 export function HomePageClient({ carouselImages, news }: HomePageClientProps) {
@@ -114,10 +222,10 @@ export function HomePageClient({ carouselImages, news }: HomePageClientProps) {
         </div>
       </section>
 
-      {/* Carousel + News Section - Side by Side */}
+      {/* Carousel + News Section - Side by Side on desktop */}
       <section className="py-8 md:py-12">
         <div className="max-w-6xl mx-auto px-4 md:px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             {/* Image Carousel with gradient border */}
             <div className="relative p-1 rounded-xl bg-gradient-to-br from-primary/40 via-primary/20 to-primary/40">
               <div className="relative h-[300px] sm:h-[350px] md:h-[400px] w-full rounded-lg overflow-hidden">
@@ -125,32 +233,37 @@ export function HomePageClient({ carouselImages, news }: HomePageClientProps) {
               </div>
             </div>
 
-            {/* News Section - Friendly vertical list */}
+            {/* News Section - Compact vertical list */}
             {news.length > 0 && (
-              <div className="flex flex-col h-full bg-gradient-to-br from-muted/30 to-muted/10 rounded-2xl p-6 border border-border/30">
-                {/* Title with cute icon */}
-                <div className="flex items-center gap-3 mb-8">
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-primary/10 shadow-sm">
-                    <Sparkles className="size-6 text-primary" />
+              <div className="flex flex-col h-full bg-gradient-to-br from-muted/30 to-muted/10 rounded-2xl p-5 border border-border/30">
+                {/* Title with icon */}
+                <div className="flex items-center gap-2.5 mb-5">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-primary/10 shadow-sm">
+                    <Sparkles className="size-5 text-primary" />
                   </div>
-                  <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
+                  <h2 className="text-xl md:text-2xl font-bold tracking-tight">
                     {t("home.news.title")}
                   </h2>
                 </div>
 
-                {/* News items - with more spacing */}
-                <div className="flex flex-col gap-4 flex-1">
-                  {news.slice(0, 4).map((newsItem) => (
-                    <NewsItemCompact key={newsItem.id} newsItem={newsItem} />
+                {/* News items - 3 on desktop, all on mobile */}
+                <div className="flex flex-col gap-2.5 flex-1">
+                  {news.slice(0, 5).map((newsItem, index) => (
+                    <div
+                      key={newsItem.id}
+                      className={index >= 3 ? "lg:hidden" : ""}
+                    >
+                      <NewsItemCompact newsItem={newsItem} />
+                    </div>
                   ))}
                 </div>
 
-                {/* View all button - more friendly */}
-                <div className="mt-8">
+                {/* View all button */}
+                <div className="mt-5">
                   <Button
                     asChild
                     variant="outline"
-                    className="w-full rounded-xl h-12 text-base hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+                    className="w-full rounded-lg h-10 text-sm hover:bg-primary hover:text-primary-foreground transition-all duration-300"
                   >
                     <Link href="/noutati">
                       {t("home.news.readAll")}
@@ -199,24 +312,40 @@ export function HomePageClient({ carouselImages, news }: HomePageClientProps) {
       {/* Activity Section - Interactive cards for Events, Projects, Resources */}
       <ActivitySection />
 
-      {/* CTA Section */}
+      {/* Newsletter + CTA Section — unified container */}
       <section className="py-12 md:py-16">
         <div className="max-w-6xl mx-auto px-4 md:px-6">
-          <div className="flex flex-col items-center text-center space-y-4 rounded-lg bg-primary/10 p-6 md:p-10">
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
-              {t("home.cta.title")}
-            </h2>
-            <p className="max-w-[700px] text-muted-foreground md:text-lg leading-relaxed">
-              {t("home.cta.text")}
-            </p>
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 border border-primary/10">
+            {/* Background decorative elements */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              <div className="absolute -top-16 -right-16 w-32 h-32 bg-primary/10 rounded-full blur-3xl" />
+              <div className="absolute -bottom-16 -left-16 w-32 h-32 bg-primary/10 rounded-full blur-3xl" />
+            </div>
 
-            <div className="flex flex-col gap-2 min-[400px]:flex-row">
-              <Button size="lg" asChild className="animate-cta-attention">
-                <Link href="/about/members/apply">{t("home.cta.apply")}</Link>
-              </Button>
-              <Button size="lg" variant="outline" asChild>
-                <Link href="/contact">{t("home.cta.contact")}</Link>
-              </Button>
+            <div className="relative z-10">
+              {/* Newsletter */}
+              <NewsletterSection />
+
+              {/* Divider */}
+              <div className="mx-8 md:mx-10 border-t border-primary/15" />
+
+              {/* CTA - Cum devii membru */}
+              <div className="flex flex-col items-center text-center space-y-5 p-8 md:p-10">
+                <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
+                  {t("home.cta.title")}
+                </h2>
+                <p className="max-w-[550px] text-muted-foreground md:text-lg leading-relaxed">
+                  {t("home.cta.text")}
+                </p>
+                <div className="flex flex-col gap-2 min-[400px]:flex-row">
+                  <Button size="lg" asChild className="animate-cta-attention">
+                    <Link href="/about/members/apply">{t("home.cta.apply")}</Link>
+                  </Button>
+                  <Button size="lg" variant="outline" asChild>
+                    <Link href="/contact">{t("home.cta.contact")}</Link>
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
         </div>

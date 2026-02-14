@@ -55,12 +55,35 @@ const formatFileSize = (bytes: number) => {
   return (bytes / (1024 * 1024)).toFixed(1) + " MB";
 };
 
+const getPlainTextFromHtml = (html: string | null | undefined) => {
+  if (!html) return "";
+
+  return html
+    .replace(/<style[\s\S]*?<\/style>/gi, "")
+    .replace(/<script[\s\S]*?<\/script>/gi, "")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+};
+
+const hasMeaningfulHtmlContent = (html: string | null | undefined) => {
+  if (!html) return false;
+
+  const hasEmbeddedMedia = /<(img|video|iframe|embed|object|svg)\b/i.test(html);
+  return hasEmbeddedMedia || getPlainTextFromHtml(html).length > 0;
+};
+
+const hasMeaningfulText = (value: string | null | undefined) => {
+  return Boolean(value && value.trim().length > 0);
+};
+
 interface ProjectDetailPageClientProps {
   project: ProjectWithSections;
 }
 
 export function ProjectDetailPageClient({ project }: ProjectDetailPageClientProps) {
-  const { language, t } = useLanguage();
+  const { language } = useLanguage();
 
   // Get localized content
   const title = language === "en" && project.titleEn ? project.titleEn : project.title;
@@ -70,6 +93,12 @@ export function ProjectDetailPageClient({ project }: ProjectDetailPageClientProp
   const detailedDescription = language === "en" && project.detailedDescriptionEn
     ? project.detailedDescriptionEn
     : project.detailedDescription;
+  const hasShortDescription = hasMeaningfulText(shortDescription);
+  const hasDetailedDescription = hasMeaningfulHtmlContent(detailedDescription);
+  const isDetailedDescriptionDuplicate =
+    hasShortDescription &&
+    hasDetailedDescription &&
+    getPlainTextFromHtml(detailedDescription) === shortDescription?.replace(/\s+/g, " ").trim();
 
   const getLocalizedSectionContent = (section: ProjectSection & { files: ProjectSectionFile[] }) => {
     return {
@@ -77,6 +106,25 @@ export function ProjectDetailPageClient({ project }: ProjectDetailPageClientProp
       content: language === "en" && section.contentEn ? section.contentEn : section.content,
     };
   };
+
+  const visibleSections = (project.sections || [])
+    .map((section) => {
+      const localized = getLocalizedSectionContent(section);
+      const hasTitle = hasMeaningfulText(localized.title);
+      const hasContent = hasMeaningfulHtmlContent(localized.content);
+      const hasFiles = Boolean(section.files && section.files.length > 0);
+
+      return {
+        ...section,
+        localizedTitle: localized.title,
+        localizedContent: localized.content,
+        hasTitle,
+        hasContent,
+        hasFiles,
+        isVisible: hasTitle || hasContent || hasFiles,
+      };
+    })
+    .filter((section) => section.isVisible);
 
   const formatDate = (date: Date) => {
     if (language === "en") {
@@ -93,6 +141,7 @@ export function ProjectDetailPageClient({ project }: ProjectDetailPageClientProp
 
   const labels = {
     backToProjects: language === "en" ? "Back to Projects" : "Înapoi la Proiecte",
+    description: language === "en" ? "Description" : "Descriere",
     attachedDocuments: language === "en" ? "Attached documents" : "Documente atașate",
     interestedInProject: language === "en" ? "Interested in this project?" : "Interesat de acest proiect?",
     projectInfo: language === "en" 
@@ -102,7 +151,7 @@ export function ProjectDetailPageClient({ project }: ProjectDetailPageClientProp
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12 space-y-8">
+    <div className="max-w-7xl mx-auto px-4 md:px-6 pt-4 md:pt-6 pb-8 md:pb-10 space-y-7">
       {/* Back Button */}
       <Button variant="ghost" asChild>
         <Link href="/projects">
@@ -139,69 +188,75 @@ export function ProjectDetailPageClient({ project }: ProjectDetailPageClientProp
 
       {/* Image */}
       {project.imageUrl && (
-        <div className="relative w-full h-64 md:h-96 rounded-lg overflow-hidden">
+        <div className="w-full rounded-lg overflow-hidden bg-muted">
           <Image
             src={project.imageUrl}
             alt={title}
-            fill
-            className="object-cover"
+            width={1920}
+            height={1080}
+            className="w-full h-64 object-cover md:h-auto md:max-h-[75vh] md:object-contain"
           />
         </div>
       )}
 
       {/* Short Description */}
-      {shortDescription && (
-        <Card>
-          <CardContent className="pt-6">
-            <p className="text-lg leading-relaxed">{shortDescription}</p>
+      {hasShortDescription && (
+        <Card className="border-l-4 border-l-primary bg-primary/5">
+          <CardContent className="pt-0">
+            <p className="text-xs font-semibold uppercase tracking-wide text-primary mb-3">
+              {labels.description}
+            </p>
+            <p className="text-lg leading-relaxed text-foreground/90 italic">
+              {shortDescription?.trim()}
+            </p>
           </CardContent>
         </Card>
       )}
 
       {/* Detailed Description */}
-      {detailedDescription && (
+      {hasDetailedDescription && !isDetailedDescriptionDuplicate && (
         <Card>
-          <CardContent className="pt-6">
+          <CardContent className="pt-0">
             <div
-              className="prose prose-lg max-w-none prose-headings:font-bold prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-p:leading-relaxed prose-ul:list-disc prose-ol:list-decimal prose-li:my-1"
-              dangerouslySetInnerHTML={{ __html: detailedDescription }}
+              className="prose prose-lg max-w-none [&>*:first-child]:mt-0 prose-headings:font-bold prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-p:leading-relaxed prose-ul:list-disc prose-ol:list-decimal prose-li:my-1"
+              dangerouslySetInnerHTML={{ __html: detailedDescription || "" }}
             />
           </CardContent>
         </Card>
       )}
 
       {/* Project Sections */}
-      {project.sections && project.sections.length > 0 && (
+      {visibleSections.length > 0 && (
         <>
           {/* Single section - render as body without card */}
-          {project.sections.length === 1 ? (
+          {visibleSections.length === 1 ? (
             <div className="space-y-6">
               {/* Optional title */}
-              {project.sections[0].title && (
+              {visibleSections[0].hasTitle && (
                 <div>
                   <h2 className="text-2xl font-semibold">
-                    {getLocalizedSectionContent(project.sections[0]).title}
+                    {visibleSections[0].localizedTitle}
                   </h2>
                   <div className="h-1 w-16 bg-primary rounded-full mt-2" />
                 </div>
               )}
               
               {/* Content */}
-              {project.sections[0].content && (
+              {visibleSections[0].hasContent && (
                 <div
                   className="prose prose-lg max-w-none prose-headings:font-bold prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-p:leading-relaxed prose-ul:list-disc prose-ol:list-decimal prose-li:my-1"
-                  dangerouslySetInnerHTML={{ __html: getLocalizedSectionContent(project.sections[0]).content || "" }}
+                  dangerouslySetInnerHTML={{ __html: visibleSections[0].localizedContent || "" }}
                 />
               )}
 
               {/* Files */}
-              {project.sections[0].files && project.sections[0].files.length > 0 && (
-                <div className={project.sections[0].content ? "pt-4 border-t" : ""}>
+              {visibleSections[0].hasFiles && (
+                <div className={visibleSections[0].hasContent ? "pt-4 border-t" : ""}>
                   <h4 className="text-sm font-semibold text-muted-foreground mb-3">
                     {labels.attachedDocuments}
                   </h4>
                   <div className="grid gap-2 sm:grid-cols-2">
-                    {project.sections[0].files.map((file) => (
+                    {visibleSections[0].files.map((file) => (
                       <a
                         key={file.id}
                         href={file.fileUrl}
@@ -230,31 +285,31 @@ export function ProjectDetailPageClient({ project }: ProjectDetailPageClientProp
           ) : (
             /* Multiple sections - render in cards */
             <div className="space-y-6">
-              {project.sections.map((section) => (
+              {visibleSections.map((section) => (
                 <Card 
                   key={section.id} 
                   className={getSectionBackgroundClass(section.backgroundColor)}
                 >
-                  {section.title && (
+                  {section.hasTitle && (
                     <CardHeader className="pb-2">
                       <CardTitle className="text-2xl font-semibold">
-                        {getLocalizedSectionContent(section).title}
+                        {section.localizedTitle}
                       </CardTitle>
                       <div className="h-1 w-16 bg-primary rounded-full mt-2" />
                     </CardHeader>
                   )}
-                  <CardContent className={section.title ? "pt-4" : "pt-6"}>
+                  <CardContent className={section.hasTitle ? "pt-4" : "pt-6"}>
                     {/* Section Content */}
-                    {section.content && (
+                    {section.hasContent && (
                       <div
                         className="prose prose-lg max-w-none prose-headings:font-bold prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-p:leading-relaxed prose-ul:list-disc prose-ol:list-decimal prose-li:my-1"
-                        dangerouslySetInnerHTML={{ __html: getLocalizedSectionContent(section).content || "" }}
+                        dangerouslySetInnerHTML={{ __html: section.localizedContent || "" }}
                       />
                     )}
 
                     {/* Section Files */}
-                    {section.files && section.files.length > 0 && (
-                      <div className={section.content ? "mt-6 pt-4 border-t" : ""}>
+                    {section.hasFiles && (
+                      <div className={section.hasContent ? "mt-6 pt-4 border-t" : ""}>
                         <h4 className="text-sm font-semibold text-muted-foreground mb-3">
                           {labels.attachedDocuments}
                         </h4>

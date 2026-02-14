@@ -74,6 +74,47 @@ interface Project {
   sections?: ProjectSectionData[];
 }
 
+const getPlainTextFromHtml = (html: string | null | undefined) => {
+  if (!html) return "";
+
+  return html
+    .replace(/<style[\s\S]*?<\/style>/gi, "")
+    .replace(/<script[\s\S]*?<\/script>/gi, "")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+};
+
+const hasMeaningfulHtmlContent = (html: string | null | undefined) => {
+  if (!html) return false;
+
+  const hasEmbeddedMedia = /<(img|video|iframe|embed|object|svg)\b/i.test(html);
+  return hasEmbeddedMedia || getPlainTextFromHtml(html).length > 0;
+};
+
+const hasMeaningfulText = (value: string | null | undefined) => {
+  return Boolean(value && value.trim().length > 0);
+};
+
+const sanitizeSections = (sections: Section[]) => {
+  return sections
+    .filter((section) => {
+      const hasTitle = hasMeaningfulText(section.title) || hasMeaningfulText(section.titleEn);
+      const hasContent =
+        hasMeaningfulHtmlContent(section.content) || hasMeaningfulHtmlContent(section.contentEn);
+      const hasFiles = Boolean(section.files && section.files.length > 0);
+
+      return hasTitle || hasContent || hasFiles;
+    })
+    .map((section, index) => ({
+      ...section,
+      title: section.title?.trim() || "",
+      titleEn: section.titleEn?.trim() || "",
+      displayOrder: index,
+    }));
+};
+
 export default function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
@@ -119,11 +160,12 @@ export default function ProjectsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      const sanitizedSections = sanitizeSections(formData.sections);
       const url = "/api/projects";
       const method = editingProject ? "PUT" : "POST";
       const body = editingProject
-        ? { ...formData, id: editingProject.id }
-        : formData;
+        ? { ...formData, id: editingProject.id, sections: sanitizedSections }
+        : { ...formData, sections: sanitizedSections };
 
       const response = await fetch(url, {
         method,
@@ -437,7 +479,7 @@ export default function ProjectsPage() {
                   </div>
 
                   <div className="grid gap-2">
-                    <Label htmlFor="shortDescription">Descriere Scurtă *</Label>
+                    <Label htmlFor="shortDescription">Descriere Scurtă</Label>
                     <Textarea
                       id="shortDescription"
                       value={formData.shortDescription}
@@ -445,8 +487,7 @@ export default function ProjectsPage() {
                         setFormData({ ...formData, shortDescription: e.target.value })
                       }
                       rows={3}
-                      placeholder="Descriere scurtă care va apărea pe card-ul proiectului (2-3 propoziții)..."
-                      required
+                      placeholder="Descriere scurtă opțională care poate apărea pe card-ul proiectului..."
                     />
                   </div>
                 </TabsContent>

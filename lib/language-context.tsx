@@ -80,6 +80,16 @@ const translations: Record<Language, Record<string, string>> = {
       "Societatea pentru Cercetare și Inovare în Patologii Infecțioase este o organizație profesională non-profit dedicată progresului științific în domeniul bolilor infecțioase. Activitatea Societății vizează sprijinirea cercetării medicale, facilitarea colaborării interdisciplinare și promovarea celor mai bune practici clinice.",
     "home.mission.readMore": "Citește mai mult",
 
+    // Newsletter Section (Homepage)
+    "home.newsletter.title": "Abonează-te la newsletter",
+    "home.newsletter.text":
+      "Fii la curent cu ultimele noutăți, evenimente și oportunități din comunitatea SCIPI. Primește actualizări direct pe e-mail.",
+    "home.newsletter.placeholder": "Adresa ta de e-mail",
+    "home.newsletter.subscribe": "Abonează-te",
+    "home.newsletter.success": "Te-ai abonat cu succes!",
+    "home.newsletter.privacy":
+      "Respectăm confidențialitatea datelor tale. Te poți dezabona oricând.",
+
     // CTA Section (Homepage)
     "home.cta.title": "Cum devii membru SCIPI?",
     "home.cta.text":
@@ -345,6 +355,16 @@ const translations: Record<Language, Record<string, string>> = {
     "home.mission.text":
       "The Society for Research and Innovation in Infectious Diseases is a non-profit professional organization dedicated to advancing scientific progress in the field of infectious diseases. The Society's activities focus on supporting medical research, facilitating interdisciplinary collaboration, and promoting best clinical practices.",
     "home.mission.readMore": "Read more",
+
+    // Newsletter Section (Homepage)
+    "home.newsletter.title": "Subscribe to our newsletter",
+    "home.newsletter.text":
+      "Stay up to date with the latest news, events, and opportunities from the SRIID community. Get updates directly to your inbox.",
+    "home.newsletter.placeholder": "Your email address",
+    "home.newsletter.subscribe": "Subscribe",
+    "home.newsletter.success": "Successfully subscribed!",
+    "home.newsletter.privacy":
+      "We respect your data privacy. You can unsubscribe at any time.",
 
     // CTA Section (Homepage)
     "home.cta.title": "How to become a SRIID member?",

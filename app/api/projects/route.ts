@@ -23,6 +23,51 @@ interface ProjectSectionInput {
   files?: ProjectSectionFile[];
 }
 
+const getPlainTextFromHtml = (html: string | null | undefined) => {
+  if (!html) return "";
+
+  return html
+    .replace(/<style[\s\S]*?<\/style>/gi, "")
+    .replace(/<script[\s\S]*?<\/script>/gi, "")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+};
+
+const hasMeaningfulHtmlContent = (html: string | null | undefined) => {
+  if (!html) return false;
+
+  const hasEmbeddedMedia = /<(img|video|iframe|embed|object|svg)\b/i.test(html);
+  return hasEmbeddedMedia || getPlainTextFromHtml(html).length > 0;
+};
+
+const hasMeaningfulText = (value: string | null | undefined) => {
+  return Boolean(value && value.trim().length > 0);
+};
+
+const sanitizeProjectSections = (sections: ProjectSectionInput[] | undefined): ProjectSectionInput[] => {
+  if (!sections || sections.length === 0) {
+    return [];
+  }
+
+  return sections
+    .filter((section) => {
+      const hasTitle = hasMeaningfulText(section.title) || hasMeaningfulText(section.titleEn);
+      const hasContent =
+        hasMeaningfulHtmlContent(section.content) || hasMeaningfulHtmlContent(section.contentEn);
+      const hasFiles = Boolean(section.files && section.files.length > 0);
+
+      return hasTitle || hasContent || hasFiles;
+    })
+    .map((section, index) => ({
+      ...section,
+      title: section.title?.trim(),
+      titleEn: section.titleEn?.trim(),
+      displayOrder: index,
+    }));
+};
+
 // Helper function to generate unique slug for projects
 async function generateUniqueProjectSlug(title: string, excludeId?: string): Promise<string> {
   const baseSlug = generateSlug(title);
@@ -106,7 +151,7 @@ export async function POST(request: NextRequest) {
     } = body;
 
     // Validation
-    if (!title || !shortDescription) {
+    if (!title) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -125,6 +170,7 @@ export async function POST(request: NextRequest) {
 
     // Generate unique slug from title
     const slug = await generateUniqueProjectSlug(title);
+    const sanitizedSections = sanitizeProjectSections(sections);
 
     const project = await prisma.project.create({
       data: {
@@ -141,8 +187,8 @@ export async function POST(request: NextRequest) {
         endDate: endDate ? new Date(endDate) : null,
         displayOrder: order,
         isActive: isActive !== undefined ? isActive : true,
-        sections: sections && sections.length > 0 ? {
-          create: sections.map((section: ProjectSectionInput) => ({
+        sections: sanitizedSections.length > 0 ? {
+          create: sanitizedSections.map((section: ProjectSectionInput) => ({
             title: section.title || null,
             titleEn: section.titleEn || null,
             content: section.content || null,
@@ -228,8 +274,9 @@ export async function PUT(request: NextRequest) {
         select: { id: true },
       });
 
+      const sanitizedSections = sanitizeProjectSections(sections as ProjectSectionInput[]);
       const existingSectionIds = existingSections.map(s => s.id);
-      const incomingSectionIds = sections
+      const incomingSectionIds = sanitizedSections
         .filter((s: ProjectSectionInput) => s.id)
         .map((s: ProjectSectionInput) => s.id);
 
@@ -245,7 +292,7 @@ export async function PUT(request: NextRequest) {
       }
 
       // Update or create sections
-      for (const section of sections as ProjectSectionInput[]) {
+      for (const section of sanitizedSections) {
         if (section.id) {
           // Update existing section
           // First, get existing files
