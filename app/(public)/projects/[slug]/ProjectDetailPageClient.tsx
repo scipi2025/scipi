@@ -87,19 +87,6 @@ export function ProjectDetailPageClient({ project }: ProjectDetailPageClientProp
 
   // Get localized content
   const title = language === "en" && project.titleEn ? project.titleEn : project.title;
-  const shortDescription = language === "en" && project.shortDescriptionEn 
-    ? project.shortDescriptionEn 
-    : project.shortDescription;
-  const detailedDescription = language === "en" && project.detailedDescriptionEn
-    ? project.detailedDescriptionEn
-    : project.detailedDescription;
-  const hasShortDescription = hasMeaningfulText(shortDescription);
-  const hasDetailedDescription = hasMeaningfulHtmlContent(detailedDescription);
-  const isDetailedDescriptionDuplicate =
-    hasShortDescription &&
-    hasDetailedDescription &&
-    getPlainTextFromHtml(detailedDescription) === shortDescription?.replace(/\s+/g, " ").trim();
-
   const getLocalizedSectionContent = (section: ProjectSection & { files: ProjectSectionFile[] }) => {
     return {
       title: language === "en" && section.titleEn ? section.titleEn : section.title,
@@ -141,7 +128,6 @@ export function ProjectDetailPageClient({ project }: ProjectDetailPageClientProp
 
   const labels = {
     backToProjects: language === "en" ? "Back to Projects" : "Înapoi la Proiecte",
-    description: language === "en" ? "Description" : "Descriere",
     attachedDocuments: language === "en" ? "Attached documents" : "Documente atașate",
     interestedInProject: language === "en" ? "Interested in this project?" : "Interesat de acest proiect?",
     projectInfo: language === "en" 
@@ -193,35 +179,9 @@ export function ProjectDetailPageClient({ project }: ProjectDetailPageClientProp
             src={project.imageUrl}
             alt={title}
             fill
-            className="object-cover object-top"
+            className="object-contain"
           />
         </div>
-      )}
-
-      {/* Short Description */}
-      {hasShortDescription && (
-        <Card className="border-l-4 border-l-primary bg-primary/5">
-          <CardContent className="pt-0">
-            <p className="text-xs font-semibold uppercase tracking-wide text-primary mb-3">
-              {labels.description}
-            </p>
-            <p className="text-lg leading-relaxed text-foreground/90 italic">
-              {shortDescription?.trim()}
-            </p>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Detailed Description */}
-      {hasDetailedDescription && !isDetailedDescriptionDuplicate && (
-        <Card>
-          <CardContent className="pt-0">
-            <div
-              className="prose prose-lg max-w-none [&>*:first-child]:mt-0 prose-headings:font-bold prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-p:leading-relaxed prose-ul:list-disc prose-ol:list-decimal prose-li:my-1"
-              dangerouslySetInnerHTML={{ __html: detailedDescription || "" }}
-            />
-          </CardContent>
-        </Card>
       )}
 
       {/* Project Sections */}
@@ -229,58 +189,58 @@ export function ProjectDetailPageClient({ project }: ProjectDetailPageClientProp
         <>
           {/* Single section - render as body without card */}
           {visibleSections.length === 1 ? (
-            <div className="space-y-6">
-              {/* Optional title */}
+            <Card className={getSectionBackgroundClass(visibleSections[0].backgroundColor)}>
               {visibleSections[0].hasTitle && (
-                <div>
-                  <h2 className="text-2xl font-semibold">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-2xl font-semibold">
                     {visibleSections[0].localizedTitle}
-                  </h2>
+                  </CardTitle>
                   <div className="h-1 w-16 bg-primary rounded-full mt-2" />
-                </div>
+                </CardHeader>
               )}
-              
-              {/* Content */}
-              {visibleSections[0].hasContent && (
-                <div
-                  className="prose prose-lg max-w-none prose-headings:font-bold prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-p:leading-relaxed prose-ul:list-disc prose-ol:list-decimal prose-li:my-1"
-                  dangerouslySetInnerHTML={{ __html: visibleSections[0].localizedContent || "" }}
-                />
-              )}
+              <CardContent className={visibleSections[0].hasTitle ? "pt-4" : "pt-6"}>
+                {/* Content */}
+                {visibleSections[0].hasContent && (
+                  <div
+                    className="prose prose-lg max-w-none prose-headings:font-bold prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-p:leading-relaxed prose-ul:list-disc prose-ol:list-decimal prose-li:my-1"
+                    dangerouslySetInnerHTML={{ __html: visibleSections[0].localizedContent || "" }}
+                  />
+                )}
 
-              {/* Files */}
-              {visibleSections[0].hasFiles && (
-                <div className={visibleSections[0].hasContent ? "pt-4 border-t" : ""}>
-                  <h4 className="text-sm font-semibold text-muted-foreground mb-3">
-                    {labels.attachedDocuments}
-                  </h4>
-                  <div className="grid gap-2 sm:grid-cols-2">
-                    {visibleSections[0].files.map((file) => (
-                      <a
-                        key={file.id}
-                        href={file.fileUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-3 p-3 rounded-lg border bg-background hover:bg-muted transition-colors group"
-                      >
-                        <div className="shrink-0 w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                          <FileText className="size-5 text-primary" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate group-hover:text-primary transition-colors">
-                            {file.fileName}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {formatFileSize(file.fileSize)}
-                          </p>
-                        </div>
-                        <Download className="size-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
-                      </a>
-                    ))}
+                {/* Files */}
+                {visibleSections[0].hasFiles && (
+                  <div className={visibleSections[0].hasContent ? "mt-6 pt-4 border-t" : ""}>
+                    <h4 className="text-sm font-semibold text-muted-foreground mb-3">
+                      {labels.attachedDocuments}
+                    </h4>
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      {visibleSections[0].files.map((file) => (
+                        <a
+                          key={file.id}
+                          href={file.fileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-3 p-3 rounded-lg border bg-background hover:bg-muted transition-colors group"
+                        >
+                          <div className="shrink-0 w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                            <FileText className="size-5 text-primary" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate group-hover:text-primary transition-colors">
+                              {file.fileName}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {formatFileSize(file.fileSize)}
+                            </p>
+                          </div>
+                          <Download className="size-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
+                        </a>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
+                )}
+              </CardContent>
+            </Card>
           ) : (
             /* Multiple sections - render in cards */
             <div className="space-y-6">

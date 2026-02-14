@@ -141,12 +141,12 @@ export function EventDetailPageClient({ event }: EventDetailPageClientProps) {
 
       {/* Image */}
       {event.imageUrl && (
-        <div className="relative w-full h-104 md:h-160 rounded-lg overflow-hidden">
+        <div className="relative w-full h-104 md:h-160 rounded-lg overflow-hidden bg-muted">
           <Image
             src={event.imageUrl}
             alt={title}
             fill
-            className="object-cover object-top"
+            className="object-contain"
           />
         </div>
       )}
@@ -156,58 +156,58 @@ export function EventDetailPageClient({ event }: EventDetailPageClientProps) {
         <>
           {/* Single section - render as body without card */}
           {event.sections.length === 1 ? (
-            <div className="space-y-6">
-              {/* Optional title */}
+            <Card className={getSectionBackgroundClass(event.sections[0].backgroundColor)}>
               {event.sections[0].title && (
-                <div>
-                  <h2 className="text-2xl font-semibold">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-2xl font-semibold">
                     {getLocalizedSectionContent(event.sections[0]).title}
-                  </h2>
+                  </CardTitle>
                   <div className="h-1 w-16 bg-primary rounded-full mt-2" />
-                </div>
+                </CardHeader>
               )}
-              
-              {/* Content */}
-              {event.sections[0].content && (
-                <div
-                  className="prose prose-lg max-w-none prose-headings:font-bold prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-p:leading-relaxed prose-ul:list-disc prose-ol:list-decimal prose-li:my-1"
-                  dangerouslySetInnerHTML={{ __html: getLocalizedSectionContent(event.sections[0]).content || "" }}
-                />
-              )}
+              <CardContent className={event.sections[0].title ? "pt-4" : "pt-6"}>
+                {/* Content */}
+                {event.sections[0].content && (
+                  <div
+                    className="prose prose-lg max-w-none prose-headings:font-bold prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-p:leading-relaxed prose-ul:list-disc prose-ol:list-decimal prose-li:my-1"
+                    dangerouslySetInnerHTML={{ __html: getLocalizedSectionContent(event.sections[0]).content || "" }}
+                  />
+                )}
 
-              {/* Files */}
-              {event.sections[0].files && event.sections[0].files.length > 0 && (
-                <div className={event.sections[0].content ? "pt-4 border-t" : ""}>
-                  <h4 className="text-sm font-semibold text-muted-foreground mb-3">
-                    {labels.attachedDocuments}
-                  </h4>
-                  <div className="grid gap-2 sm:grid-cols-2">
-                    {event.sections[0].files.map((file) => (
-                      <a
-                        key={file.id}
-                        href={file.fileUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-3 p-3 rounded-lg border bg-background hover:bg-muted transition-colors group"
-                      >
-                        <div className="shrink-0 w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                          <FileText className="size-5 text-primary" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate group-hover:text-primary transition-colors">
-                            {file.fileName}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {formatFileSize(file.fileSize)}
-                          </p>
-                        </div>
-                        <Download className="size-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
-                      </a>
-                    ))}
+                {/* Files */}
+                {event.sections[0].files && event.sections[0].files.length > 0 && (
+                  <div className={event.sections[0].content ? "mt-6 pt-4 border-t" : ""}>
+                    <h4 className="text-sm font-semibold text-muted-foreground mb-3">
+                      {labels.attachedDocuments}
+                    </h4>
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      {event.sections[0].files.map((file) => (
+                        <a
+                          key={file.id}
+                          href={file.fileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-3 p-3 rounded-lg border bg-background hover:bg-muted transition-colors group"
+                        >
+                          <div className="shrink-0 w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                            <FileText className="size-5 text-primary" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate group-hover:text-primary transition-colors">
+                              {file.fileName}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {formatFileSize(file.fileSize)}
+                            </p>
+                          </div>
+                          <Download className="size-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
+                        </a>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
+                )}
+              </CardContent>
+            </Card>
           ) : (
             /* Multiple sections - render in cards */
             <div className="space-y-6">
