@@ -61,6 +61,7 @@ model Project {
   detailedDescription   String?
   detailedDescriptionEn String?          // English translation
   imageUrl              String?          // Project cover image
+  showImageOnDetail     Boolean          @default(true) // Show image on project detail page
   status                String?
   startDate             DateTime?
   endDate               DateTime?
@@ -120,6 +121,7 @@ model Event {
   detailedDescription   String?
   detailedDescriptionEn String?             // English translation
   imageUrl              String?
+  showImageOnDetail     Boolean             @default(true) // Show image on event detail page
   eventDate             DateTime?
   dateText              String?             // For date ranges like "Iunie - August 2025"
   dateTextEn            String?             // English translation (e.g., "June - August 2025")

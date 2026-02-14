@@ -86,6 +86,8 @@ interface ProjectDetailPageClientProps {
 export function ProjectDetailPageClient({ project }: ProjectDetailPageClientProps) {
   const { language } = useLanguage();
   const [imageAspectRatio, setImageAspectRatio] = useState(16 / 9);
+  const showImageOnDetail =
+    (project as Project & { showImageOnDetail?: boolean }).showImageOnDetail ?? true;
 
   // Get localized content
   const title = language === "en" && project.titleEn ? project.titleEn : project.title;
@@ -175,7 +177,7 @@ export function ProjectDetailPageClient({ project }: ProjectDetailPageClientProp
       </div>
 
       {/* Image */}
-      {project.imageUrl && (
+      {project.imageUrl && showImageOnDetail && (
         <div className="w-full">
           <Image
             src={project.imageUrl}

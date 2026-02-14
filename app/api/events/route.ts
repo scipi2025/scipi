@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { title, titleEn, type, shortDescription, shortDescriptionEn, detailedDescription, detailedDescriptionEn, imageUrl, eventDate, dateText, dateTextEn, location, locationEn, displayOrder, sections, isActive } = body;
+    const { title, titleEn, type, shortDescription, shortDescriptionEn, detailedDescription, detailedDescriptionEn, imageUrl, showImageOnDetail, eventDate, dateText, dateTextEn, location, locationEn, displayOrder, sections, isActive } = body;
 
     // Validation
     if (!title || !type || !shortDescription) {
@@ -116,6 +116,7 @@ export async function POST(request: NextRequest) {
         detailedDescription: detailedDescription || null,
         detailedDescriptionEn: detailedDescriptionEn || null,
         imageUrl: imageUrl || null,
+        showImageOnDetail: showImageOnDetail !== undefined ? showImageOnDetail : true,
         eventDate: eventDate ? new Date(eventDate) : null,
         dateText: dateText || null,
         dateTextEn: dateTextEn || null,
@@ -175,7 +176,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { id, title, titleEn, type, shortDescription, shortDescriptionEn, detailedDescription, detailedDescriptionEn, imageUrl, eventDate, dateText, dateTextEn, location, locationEn, displayOrder, sections, isActive } = body;
+    const { id, title, titleEn, type, shortDescription, shortDescriptionEn, detailedDescription, detailedDescriptionEn, imageUrl, showImageOnDetail, eventDate, dateText, dateTextEn, location, locationEn, displayOrder, sections, isActive } = body;
 
     if (!id) {
       return NextResponse.json({ error: 'Event ID is required' }, { status: 400 });
@@ -300,6 +301,7 @@ export async function PUT(request: NextRequest) {
         ...(detailedDescription !== undefined && { detailedDescription }),
         ...(detailedDescriptionEn !== undefined && { detailedDescriptionEn }),
         ...(imageUrl !== undefined && { imageUrl }),
+        ...(showImageOnDetail !== undefined && { showImageOnDetail }),
         ...(eventDate !== undefined && { eventDate: eventDate ? new Date(eventDate) : null }),
         ...(dateText !== undefined && { dateText: dateText || null }),
         ...(dateTextEn !== undefined && { dateTextEn: dateTextEn || null }),

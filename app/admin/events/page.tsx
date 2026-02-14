@@ -46,6 +46,7 @@ interface Event {
   detailedDescription?: string | null;
   detailedDescriptionEn?: string | null;
   imageUrl?: string | null;
+  showImageOnDetail?: boolean;
   eventDate?: string | null;
   dateText?: string | null;
   dateTextEn?: string | null;
@@ -74,6 +75,7 @@ export default function AdminEventsPage() {
     detailedDescription: "",
     detailedDescriptionEn: "",
     imageUrl: "",
+    showImageOnDetail: true,
     eventDate: "",
     dateText: "",
     dateTextEn: "",
@@ -154,6 +156,7 @@ export default function AdminEventsPage() {
       detailedDescription: event.detailedDescription || "",
       detailedDescriptionEn: event.detailedDescriptionEn || "",
       imageUrl: event.imageUrl || "",
+      showImageOnDetail: event.showImageOnDetail ?? true,
       eventDate: event.eventDate ? event.eventDate.split("T")[0] : "",
       dateText: event.dateText || "",
       dateTextEn: event.dateTextEn || "",
@@ -182,6 +185,7 @@ export default function AdminEventsPage() {
       detailedDescription: "",
       detailedDescriptionEn: "",
       imageUrl: "",
+      showImageOnDetail: true,
       eventDate: "",
       dateText: "",
       dateTextEn: "",
@@ -448,6 +452,19 @@ export default function AdminEventsPage() {
                   }
                   type="event"
                 />
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="showImageOnDetail"
+                  checked={formData.showImageOnDetail}
+                  onCheckedChange={(checked) =>
+                    setFormData({ ...formData, showImageOnDetail: checked === true })
+                  }
+                />
+                <Label htmlFor="showImageOnDetail" className="text-sm font-normal">
+                  Afișează imaginea și pe pagina evenimentului
+                </Label>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

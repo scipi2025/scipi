@@ -64,6 +64,7 @@ interface Project {
   detailedDescription?: string | null;
   detailedDescriptionEn?: string | null;
   imageUrl?: string | null;
+  showImageOnDetail?: boolean;
   status?: string | null;
   startDate?: string | null;
   endDate?: string | null;
@@ -132,6 +133,7 @@ export default function ProjectsPage() {
     detailedDescription: "",
     detailedDescriptionEn: "",
     imageUrl: "",
+    showImageOnDetail: true,
     status: "ongoing",
     startDate: "",
     endDate: "",
@@ -209,6 +211,7 @@ export default function ProjectsPage() {
       detailedDescription: project.detailedDescription || "",
       detailedDescriptionEn: project.detailedDescriptionEn || "",
       imageUrl: project.imageUrl || "",
+      showImageOnDetail: project.showImageOnDetail ?? true,
       status: project.status || "ongoing",
       startDate: project.startDate ? project.startDate.split("T")[0] : "",
       endDate: project.endDate ? project.endDate.split("T")[0] : "",
@@ -233,6 +236,7 @@ export default function ProjectsPage() {
       detailedDescription: "",
       detailedDescriptionEn: "",
       imageUrl: "",
+      showImageOnDetail: true,
       status: "ongoing",
       startDate: "",
       endDate: "",
@@ -529,6 +533,19 @@ export default function ProjectsPage() {
                   }
                   type="project"
                 />
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="showImageOnDetail"
+                  checked={formData.showImageOnDetail}
+                  onCheckedChange={(checked) =>
+                    setFormData({ ...formData, showImageOnDetail: checked === true })
+                  }
+                />
+                <Label htmlFor="showImageOnDetail" className="text-sm font-normal">
+                  Afișează imaginea și pe pagina proiectului
+                </Label>
               </div>
 
               <div className="grid gap-2">

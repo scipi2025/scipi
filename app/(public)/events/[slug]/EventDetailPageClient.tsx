@@ -72,6 +72,8 @@ interface EventDetailPageClientProps {
 export function EventDetailPageClient({ event }: EventDetailPageClientProps) {
   const { language } = useLanguage();
   const [imageAspectRatio, setImageAspectRatio] = useState(16 / 9);
+  const showImageOnDetail =
+    (event as Event & { showImageOnDetail?: boolean }).showImageOnDetail ?? true;
 
   // Get localized content
   const title = language === "en" && event.titleEn ? event.titleEn : event.title;
@@ -139,7 +141,7 @@ export function EventDetailPageClient({ event }: EventDetailPageClientProps) {
       </div>
 
       {/* Image */}
-      {event.imageUrl && (
+      {event.imageUrl && showImageOnDetail && (
         <div className="w-full">
           <Image
             src={event.imageUrl}
