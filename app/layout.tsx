@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Suspense } from "react";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { VisitTracker } from "@/components/analytics/visit-tracker";
 
@@ -83,6 +84,7 @@ export default function RootLayout({
           <VisitTracker />
         </Suspense>
         {children}
+        <Analytics />
       </body>
     </html>
   );
