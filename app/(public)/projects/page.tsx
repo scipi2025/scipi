@@ -22,6 +22,7 @@ async function getProjects() {
       slug: true,
       shortDescription: true,
       shortDescriptionEn: true,
+      imageUrl: true,
       status: true,
     }
   });

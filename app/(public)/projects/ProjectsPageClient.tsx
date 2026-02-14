@@ -91,12 +91,12 @@ export function ProjectsPageClient({ projects }: ProjectsPageClientProps) {
               return (
                 <Card key={project.id} className="hover:shadow-lg transition-all group relative overflow-hidden border-2">
                   {project.imageUrl && (
-                    <div className="relative w-full h-48 overflow-hidden">
+                    <div className="relative w-full h-56 bg-muted overflow-hidden">
                       <Image
                         src={project.imageUrl}
                         alt={title}
                         fill
-                        className="object-cover object-top group-hover:scale-105 transition-transform duration-300"
+                        className="object-contain group-hover:scale-105 transition-transform duration-300"
                       />
                     </div>
                   )}
