@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Beaker, Users } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { useLanguage, getLocalizedContent } from "@/lib/language-context";
 
 interface Project {
@@ -14,6 +15,7 @@ interface Project {
   slug?: string | null;
   shortDescription: string;
   shortDescriptionEn?: string | null;
+  imageUrl?: string | null;
   status?: string | null;
   [key: string]: unknown;
 }
@@ -87,7 +89,17 @@ export function ProjectsPageClient({ projects }: ProjectsPageClientProps) {
               const shortDescription = getLocalizedContent(project, "shortDescription", language);
               
               return (
-                <Card key={project.id} className="hover:shadow-lg transition-all group relative">
+                <Card key={project.id} className="hover:shadow-lg transition-all group relative overflow-hidden border-2">
+                  {project.imageUrl && (
+                    <div className="relative w-full h-48 overflow-hidden">
+                      <Image
+                        src={project.imageUrl}
+                        alt={title}
+                        fill
+                        className="object-cover object-top group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                  )}
                   {project.status && (
                     <div className="absolute top-4 right-4">
                       <Badge className={project.status === "ongoing" ? "bg-blue-500 hover:bg-blue-600" : "bg-green-600 hover:bg-green-700"}>
