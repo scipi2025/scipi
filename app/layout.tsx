@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Suspense } from "react";
 import "./globals.css";
+import { VisitTracker } from "@/components/analytics/visit-tracker";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -77,6 +79,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-x-hidden`}
         suppressHydrationWarning
       >
+        <Suspense fallback={null}>
+          <VisitTracker />
+        </Suspense>
         {children}
       </body>
     </html>

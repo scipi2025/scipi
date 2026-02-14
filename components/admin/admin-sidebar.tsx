@@ -16,6 +16,7 @@ import {
   Image as ImageIcon,
   Newspaper,
   Send,
+  Activity,
 } from "lucide-react";
 import {
   Sidebar,
@@ -88,6 +89,11 @@ const navigationItems = [
     title: "Carousel Imagini",
     href: "/admin/carousel",
     icon: ImageIcon,
+  },
+  {
+    title: "Trafic Website",
+    href: "/admin/traffic",
+    icon: Activity,
   },
 ];
 
@@ -165,6 +171,10 @@ export function AdminSidebar({ admin }: AdminSidebarProps) {
       </SidebarContent>
 
       <SidebarFooter className="bg-sidebar">
+        <div className="px-2 pb-2 text-xs text-sidebar-foreground/70 group-data-[collapsible=icon]:hidden">
+          <p className="truncate font-medium">{admin.name}</p>
+          <p className="truncate">{admin.email}</p>
+        </div>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton

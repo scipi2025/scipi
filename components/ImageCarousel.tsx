@@ -57,7 +57,7 @@ export function ImageCarousel({ images }: ImageCarouselProps) {
       setCurrentIndex((prevIndex) =>
         prevIndex === carouselImages.length - 1 ? 0 : prevIndex + 1
       );
-    }, 3000); // Change image every 3 seconds
+    }, 4500); // Change image every 4.5 seconds
 
     return () => clearInterval(interval);
   }, [carouselImages.length]);

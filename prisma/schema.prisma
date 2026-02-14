@@ -15,6 +15,7 @@ model Admin {
   name         String
   createdAt    DateTime  @default(now())
   sessions     Session[]
+  visits       WebsiteVisit[]
 
   @@map("admins")
 }
@@ -310,4 +311,52 @@ model NewsletterSubscriber {
 
   @@index([email])
   @@map("newsletter_subscribers")
+}
+
+model WebsiteVisit {
+  id             String    @id @default(cuid())
+  adminId        String?
+  visitorId      String
+  isAuthenticated Boolean  @default(false)
+  isNewVisitor   Boolean   @default(false)
+  path           String
+  query          String?
+  fullPath       String
+  host           String?
+  ipAddress      String?
+  userAgent      String?
+  browser        String?
+  operatingSystem String?
+  deviceType     String?
+  country        String?
+  region         String?
+  city           String?
+  referer        String?
+  refererHost    String?
+  source         String?
+  screenWidth    Int?
+  screenHeight   Int?
+  viewportWidth  Int?
+  viewportHeight Int?
+  language       String?
+  timezone       String?
+  platform       String?
+  pageTitle      String?
+  doNotTrack     Boolean?
+  utmSource      String?
+  utmMedium      String?
+  utmCampaign    String?
+  utmTerm        String?
+  utmContent     String?
+  visitedAt      DateTime  @default(now())
+  admin          Admin?    @relation(fields: [adminId], references: [id], onDelete: SetNull)
+
+  @@index([visitedAt])
+  @@index([path])
+  @@index([visitorId])
+  @@index([adminId])
+  @@index([source])
+  @@index([browser])
+  @@index([deviceType])
+  @@map("website_visits")
 }
