@@ -135,7 +135,7 @@ export function EventsPageClient({ events }: EventsPageClientProps) {
                         src={event.imageUrl}
                         alt={title}
                         fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="object-cover object-top group-hover:scale-105 transition-transform duration-300"
                       />
                     </div>
                   )}

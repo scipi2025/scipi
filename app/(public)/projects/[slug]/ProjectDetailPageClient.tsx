@@ -188,13 +188,12 @@ export function ProjectDetailPageClient({ project }: ProjectDetailPageClientProp
 
       {/* Image */}
       {project.imageUrl && (
-        <div className="w-full rounded-lg overflow-hidden bg-muted">
+        <div className="relative w-full h-104 md:h-160 rounded-lg overflow-hidden bg-muted">
           <Image
             src={project.imageUrl}
             alt={title}
-            width={1920}
-            height={1080}
-            className="w-full h-64 object-cover md:h-auto md:max-h-[75vh] md:object-contain"
+            fill
+            className="object-cover object-top"
           />
         </div>
       )}

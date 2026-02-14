@@ -141,12 +141,12 @@ export function EventDetailPageClient({ event }: EventDetailPageClientProps) {
 
       {/* Image */}
       {event.imageUrl && (
-        <div className="relative w-full h-64 md:h-96 rounded-lg overflow-hidden">
+        <div className="relative w-full h-104 md:h-160 rounded-lg overflow-hidden">
           <Image
             src={event.imageUrl}
             alt={title}
             fill
-            className="object-cover"
+            className="object-cover object-top"
           />
         </div>
       )}

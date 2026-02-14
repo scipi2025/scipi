@@ -331,10 +331,10 @@ export function HomePageClient({ carouselImages, news }: HomePageClientProps) {
 
               {/* CTA - Cum devii membru */}
               <div className="flex flex-col items-center text-center space-y-5 p-8 md:p-10">
-                <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
+                <h2 className="text-xl md:text-2xl font-bold tracking-tight">
                   {t("home.cta.title")}
                 </h2>
-                <p className="max-w-[550px] text-muted-foreground md:text-lg leading-relaxed">
+                <p className="max-w-[500px] text-muted-foreground text-sm md:text-base leading-relaxed">
                   {t("home.cta.text")}
                 </p>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
