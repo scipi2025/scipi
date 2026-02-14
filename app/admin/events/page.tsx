@@ -281,7 +281,7 @@ export default function AdminEventsPage() {
                   <TableHead className="w-12">Ord.</TableHead>
                   <TableHead>Titlu & Tip</TableHead>
                   <TableHead>Data</TableHead>
-                  <TableHead className="w-[100px]">Vizibil</TableHead>
+                  <TableHead className="w-25">Vizibil</TableHead>
                   <TableHead className="text-right">Acțiuni</TableHead>
                 </TableRow>
               </TableHeader>
@@ -370,7 +370,7 @@ export default function AdminEventsPage() {
 
       {/* Add/Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-h-[90vh] w-[1200px] overflow-y-auto">
+        <DialogContent className="max-h-[90vh] w-300 overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {editingEvent ? "Editează Eveniment" : "Adaugă Eveniment"}
