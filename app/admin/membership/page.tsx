@@ -37,6 +37,9 @@ type MembershipApplication = {
   institutionalAffiliation: string;
   membershipType: string;
   researchInterests: string;
+  gdprConsent: boolean;
+  feeConsent: boolean;
+  newsletterConsent: boolean;
   status: string;
   createdAt: string;
   reviewNotes?: string;
@@ -246,13 +249,14 @@ const professionalGradeLabels: Record<string, string> = {
   medic_specialist: "Medic specialist",
   medic_primar: "Medic primar",
   student_medicina: "Student medicină",
+  doctorand: "Doctorand",
   asistent_medical: "Asistent medical",
   alta: "Altă categorie",
 };
 
 const membershipTypeLabels: Record<string, string> = {
   membru_activ: "Membru activ",
-  medic_asociat: "Medic asociat",
+  membru_asociat: "Membru asociat",
 };
 
 export default function MembershipApplicationsPage() {
@@ -467,6 +471,36 @@ export default function MembershipApplicationsPage() {
                   <p className="mt-1 text-sm leading-relaxed whitespace-pre-wrap">
                     {selectedApp.researchInterests}
                   </p>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <Label className="text-muted-foreground text-base">Acorduri și Declarații</Label>
+                <div className="grid gap-2">
+                  <div className="flex items-center gap-2">
+                    {selectedApp.gdprConsent ? (
+                      <CheckCircle2 className="size-4 text-green-600 shrink-0" />
+                    ) : (
+                      <XCircle className="size-4 text-red-500 shrink-0" />
+                    )}
+                    <span className="text-sm">Acord prelucrare date personale (GDPR)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {selectedApp.feeConsent ? (
+                      <CheckCircle2 className="size-4 text-green-600 shrink-0" />
+                    ) : (
+                      <XCircle className="size-4 text-red-500 shrink-0" />
+                    )}
+                    <span className="text-sm">Acord plată cotizație</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {selectedApp.newsletterConsent ? (
+                      <CheckCircle2 className="size-4 text-green-600 shrink-0" />
+                    ) : (
+                      <XCircle className="size-4 text-red-500 shrink-0" />
+                    )}
+                    <span className="text-sm">Acord primire newsletter</span>
+                  </div>
                 </div>
               </div>
 

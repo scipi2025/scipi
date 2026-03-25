@@ -255,9 +255,8 @@ const translations: Record<Language, Record<string, string>> = {
     "partners.collaborations": "Colaborări și parteneriate",
     "partners.collaborationsText":
       "Societatea pentru Cercetare și Inovare în Patologii Infecțioase își desfășoară activitatea în strânsă colaborare cu parteneri instituționali, organizații academice și societăți profesionale din România și din străinătate, în cadrul unor inițiative comune de cercetare, educație medicală și dezvoltare profesională.",
-    "partners.national": "Parteneri naționali",
-    "partners.international": "Parteneri internaționali",
-    "partners.sponsors": "Sponsori",
+    "partners.institutional": "Parteneri instituționali",
+    "partners.supporting": "Parteneri suport",
     "partners.becomePartner": "Devino partener SCIPI",
     "partners.becomePartnerText":
       "Construim parteneriate pentru cercetare, educație medicală și inovare în domeniul bolilor infecțioase.",
@@ -531,9 +530,8 @@ const translations: Record<Language, Record<string, string>> = {
     "partners.collaborations": "Collaborations and partnerships",
     "partners.collaborationsText":
       "Society for Research and Innovation in Infectious Diseases carries out its activities in close collaboration with institutional partners, academic organizations, and professional societies in Romania and worldwide, within joint initiatives focused on research, medical education, and professional development.",
-    "partners.national": "National partners",
-    "partners.international": "International partners",
-    "partners.sponsors": "Sponsors",
+    "partners.institutional": "Institutional partners",
+    "partners.supporting": "Supporting partners",
     "partners.becomePartner": "Become a SRIID partner",
     "partners.becomePartnerText":
       "We build partnerships for research, medical education, and innovation in the field of infectious diseases.",

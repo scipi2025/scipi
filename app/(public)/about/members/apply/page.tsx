@@ -257,6 +257,17 @@ export default function MembershipApplicationPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    if (!formData.membershipType) {
+      setError(language === "en" ? "Please select a membership type." : "Vă rugăm să selectați tipul de membru.");
+      return;
+    }
+
+    if (!formData.gdprConsent || !formData.feeConsent) {
+      setError(language === "en" ? "You must agree to the mandatory agreements." : "Acordurile obligatorii trebuie bifate.");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {

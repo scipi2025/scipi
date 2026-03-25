@@ -185,10 +185,8 @@ export default function PartnersPage() {
     switch (type) {
       case "institutional":
         return "Instituțional";
-      case "international":
-        return "Internațional";
-      case "sponsor":
-        return "Sponsor";
+      case "supporting":
+        return "Suport";
       default:
         return type;
     }
@@ -206,7 +204,7 @@ export default function PartnersPage() {
           <div>
             <h2 className="text-2xl font-bold tracking-tight">Parteneri</h2>
             <p className="text-muted-foreground">
-              Gestionează partenerii instituționali, internaționali și sponsorii
+              Gestionează partenerii instituționali și partenerii suport
             </p>
           </div>
           <Button
@@ -224,8 +222,7 @@ export default function PartnersPage() {
           <TabsList>
             <TabsTrigger value="all">Toți</TabsTrigger>
             <TabsTrigger value="institutional">Instituționali</TabsTrigger>
-            <TabsTrigger value="international">Internaționali</TabsTrigger>
-            <TabsTrigger value="sponsor">Sponsori</TabsTrigger>
+            <TabsTrigger value="supporting">Suport</TabsTrigger>
           </TabsList>
         </Tabs>
 
@@ -429,8 +426,7 @@ export default function PartnersPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="institutional">Instituțional</SelectItem>
-                    <SelectItem value="international">Internațional</SelectItem>
-                    <SelectItem value="sponsor">Sponsor</SelectItem>
+                    <SelectItem value="supporting">Suport</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
