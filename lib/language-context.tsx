@@ -145,7 +145,7 @@ const translations: Record<Language, Record<string, string>> = {
     "events.title": "Evenimente",
     "events.pageTitle": "Evenimente științifice",
     "events.intro":
-      "Societatea pentru Cercetare și Inovare în Patologii Infecțioase organizează și participă în calitate de partener la diverse evenimente științifice: congrese și conferințe naționale sau internaționale, simpozioane, workshop-uri sau seminarii.",
+      "organizează și participă în calitate de partener la diverse evenimente științifice: congrese și conferințe naționale sau internaționale, simpozioane, workshop-uri sau seminarii.",
     "events.intro2":
       "Aceste evenimente oferă oportunități de networking, schimb de experiență și diseminare a rezultatelor cercetării în domeniul bolilor infecțioase și a specialităților conexe.",
     "events.intro3":
@@ -161,7 +161,7 @@ const translations: Record<Language, Record<string, string>> = {
     "projects.title": "Proiecte",
     "projects.pageTitle": "Cercetare și inovare",
     "projects.intro":
-      "Societatea pentru Cercetare și Inovare în Patologii Infecțioase desfășoară proiecte de cercetare clinică și fundamentală, dezvoltate în colaborare cu parteneri instituționali naționali și internaționali.",
+      "desfășoară proiecte de cercetare clinică și fundamentală, dezvoltate în colaborare cu parteneri instituționali naționali și internaționali.",
     "projects.intro2":
       "Aceste inițiative urmăresc generarea de date relevante pentru îmbunătățirea practicii clinice și promovarea inovației în domeniul bolilor infecțioase.",
     "projects.intro3":
@@ -420,7 +420,7 @@ const translations: Record<Language, Record<string, string>> = {
     "events.title": "Events",
     "events.pageTitle": "Scientific events",
     "events.intro":
-      "The Society for Research and Innovation in Infectious Diseases organizes and participates as a partner in a wide range of scientific events, including national and international congresses and conferences, symposia, workshops, and seminars.",
+      "organizes and participates as a partner in a wide range of scientific events, including national and international congresses and conferences, symposia, workshops, and seminars.",
     "events.intro2":
       "These events provide opportunities for networking, experience sharing, and dissemination of research findings in the field of infectious diseases and related specialties.",
     "events.intro3":
@@ -436,7 +436,7 @@ const translations: Record<Language, Record<string, string>> = {
     "projects.title": "Projects",
     "projects.pageTitle": "Research and Innovation",
     "projects.intro":
-      "The Society for Research and Innovation in Infectious Diseases conducts clinical and basic research projects developed in collaboration with national and international institutional partners.",
+      "conducts clinical and basic research projects developed in collaboration with national and international institutional partners.",
     "projects.intro2":
       "These initiatives aim to generate relevant data to improve clinical practice and to promote innovation in the field of infectious diseases.",
     "projects.intro3":
